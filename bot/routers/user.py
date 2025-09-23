@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 from ..keyboards import contact_keyboard, name_kb
 from ..states import UserRegistration
+from ..utils import BackendClient
 
 
 load_dotenv()
@@ -44,9 +45,8 @@ async def enter_name(message: Message, state: FSMContext):
     }
     await state.clear()
 
-    async with ClientSession() as session:
-        async with session.post(f'{BACKEND_URL}/users/', json=data) as response:
-            if response.status == 201:
-                await message.reply('Done!')
-            else:
-                await message.reply('Error')
+    status = await BackendClient.post("/users/", data)
+    if status == 201:
+        await message.reply("Done!")
+    else:
+        await message.reply("Error")

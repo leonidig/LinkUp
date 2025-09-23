@@ -11,13 +11,12 @@ def main_kb():
     return builder.as_markup()
 
 
-def name_kb(name: str):
-    builder = ReplyKeyboardBuilder()
-
-    builder.button(text=name)
-    
-    return builder.as_markup()
-
+def name_kb(name: str) -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text=name)]],
+        resize_keyboard=True,
+        one_time_keyboard=True 
+    )
 
 def contact_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
