@@ -8,15 +8,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-DB_HOST = getenv("DB_HOST")
-DB_PORT = getenv("DB_PORT")
-DB_NAME = getenv("DB_NAME")
-DB_USER = getenv("DB_USER")
-DB_PASSWORD = getenv("DB_PASSWORD")
+# DB_HOST = getenv("DB_HOST")
+# DB_PORT = getenv("DB_PORT")
+# DB_NAME = getenv("DB_NAME")
+# DB_USER = getenv("DB_USER")
+# DB_PASSWORD = getenv("DB_PASSWORD")
 
-DATABASE_URL = (
-    f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-)
+# DATABASE_URL = (
+#     f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+# )
 
 
 class Base(DeclarativeBase):
@@ -24,7 +24,7 @@ class Base(DeclarativeBase):
 
 
 class AsyncDB:
-    ENGINE = create_async_engine(DATABASE_URL)
+    ENGINE = create_async_engine("sqlite+aiosqlite:///database.db")
     Session = sessionmaker(bind=ENGINE, class_=AsyncSession)
 
     @classmethod
@@ -47,7 +47,6 @@ class AsyncDB:
     async def get_session(cls):
         async with cls.Session.begin() as session:
             yield session
-
 
 
 from .models import Master, Order, ReferralLink, Service, User

@@ -2,7 +2,6 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .. import Base
-from .user import User
 
 
 class Master(Base):
@@ -20,7 +19,7 @@ class Master(Base):
     referral_bonus: Mapped[int] = mapped_column(default=0)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True)
-    user: Mapped[User] = relationship(back_populates="master")
+    user: Mapped['User'] = relationship(back_populates="master")
 
     orders: Mapped[list["Order"]] = relationship(back_populates="master")
     services: Mapped[list["Service"]] = relationship(back_populates="master")

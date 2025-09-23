@@ -13,7 +13,7 @@ class ReferralLink(Base):
 
     code: Mapped[str] # creator tg_id 
     master_id: Mapped[int] = mapped_column(ForeignKey("masters.id"))
-    created_by: Mapped[int] = mapped_column(ForeignKey("users.me"))
+    created_by_tg_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     bonus_amount: Mapped[int] = mapped_column(default=None)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     is_active: Mapped[bool] = mapped_column(default=True)

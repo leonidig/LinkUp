@@ -1,11 +1,11 @@
 from fastapi import FastAPI, APIRouter
 
-from .routers import test_router
+from .routers import users_router
 
 
 app = FastAPI()
 
 
 api_router = APIRouter(prefix='/api')
-api_router.include_router(test_router)
+api_router.include_router(users_router)
 app.include_router(api_router)
