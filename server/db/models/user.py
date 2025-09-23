@@ -9,7 +9,7 @@ class User(Base):
 
     tg_id: Mapped[int]
     username: Mapped[str] = mapped_column(nullable=True)
-    phone: Mapped[str]
+    phone: Mapped[int]
     name: Mapped[str]
     role: Mapped[str] = mapped_column(default="user")  # user, master, admin
 
