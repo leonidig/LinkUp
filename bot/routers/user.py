@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiohttp import ClientSession
 from dotenv import load_dotenv
 
-from ..keyboards import contact_keyboard, name_kb
+from ..keyboards import contact_keyboard, name_kb, main_kb
 from ..states import UserRegistration
 from ..utils import BackendClient
 
@@ -15,6 +15,7 @@ load_dotenv()
 
 users_router = Router(name='Users Router')
 BACKEND_URL = getenv('BACKEND_URL')
+
 
 @users_router.message(F.text == 'Зареєструватися')
 async def start_register(message: Message):
@@ -35,6 +36,8 @@ async def get_number(message: Message, state: FSMContext):
 
 @users_router.message(UserRegistration.name)
 async def enter_name(message: Message, state: FSMContext):
+    if len(message.text.strip()) < 2:
+        await message.reply("❗️ Занадто коротке імʼя, введіть ще раз")
     await message.react([ReactionTypeEmoji(emoji="👍")])
     context = await state.get_data()
     data = {
@@ -47,6 +50,6 @@ async def enter_name(message: Message, state: FSMContext):
 
     status = await BackendClient.post("/users/", data)
     if status == 201:
-        await message.reply("Done!")
+        await message.reply("Ти пройшов реїстрацію!", reply_markup=main_kb(exists=True))
     else:
-        await message.reply("Error")
+        await message.reply("Помилка")

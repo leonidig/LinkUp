@@ -2,10 +2,13 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 
-def main_kb():
+def main_kb(exists: bool):
     builder = ReplyKeyboardBuilder()
 
-    builder.button(text='Зареєструватися')
+    if not exists:
+        builder.button(text='Зареєструватися')
+    else:
+        builder.button(text='Some Btn If Exists')
 
     builder.adjust(1)
     return builder.as_markup()
@@ -17,6 +20,7 @@ def name_kb(name: str) -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=True 
     )
+
 
 def contact_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(

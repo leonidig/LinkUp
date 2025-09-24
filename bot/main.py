@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 
 from .keyboards import main_kb
 from .routers import users_router
+from .utils import BackendClient
 
 
 load_dotenv()
@@ -23,7 +24,12 @@ dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.answer(f"Hello, {html.bold(message.from_user.full_name)}!", reply_markup=main_kb())
+    tg_id = message.from_user.id
+    status_code, user_data = await BackendClient.get(f'/users/check-exists/{tg_id}')
+    await message.answer(
+        f"Hello, {html.bold(message.from_user.full_name)}!",
+        reply_markup=main_kb(exists=user_data)
+    )
 
 
 async def start() -> None:
