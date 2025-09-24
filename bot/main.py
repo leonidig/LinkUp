@@ -11,7 +11,7 @@ from aiogram.types import Message
 from dotenv import load_dotenv
 
 from .keyboards import main_kb
-from .routers import users_router
+from .routers import users_router, masters_router
 from .utils import BackendClient
 
 
@@ -35,4 +35,5 @@ async def command_start_handler(message: Message) -> None:
 async def start() -> None:
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp.include_router(users_router)
+    dp.include_router(masters_router)
     await dp.start_polling(bot)

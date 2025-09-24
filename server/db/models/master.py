@@ -7,16 +7,16 @@ from .. import Base
 class Master(Base):
     __tablename__ = "masters"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     specialization: Mapped[str]
     description: Mapped[str] = mapped_column(nullable=True)
     experience_years: Mapped[int] = mapped_column(default=0)
-    location: Mapped[str] = mapped_column(nullable=True)
-    schedule: Mapped[str] = mapped_column(nullable=True)
+    location: Mapped[str]
+    schedule: Mapped[str]
     is_active: Mapped[bool] = mapped_column(default=True)
     rating: Mapped[float] = mapped_column(default=0.0)
     reviews_count: Mapped[int] = mapped_column(default=0)
-    referral_bonus: Mapped[int] = mapped_column(default=0)
+    bad_grades: Mapped[int] = mapped_column(default=0)
+    good_grades: Mapped[int] = mapped_column(default=0)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True)
     user: Mapped['User'] = relationship(back_populates="master")

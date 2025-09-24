@@ -9,6 +9,7 @@ def main_kb(exists: bool):
         builder.button(text='Зареєструватися')
     else:
         builder.button(text='Some Btn If Exists')
+        builder.button(text='Створити Профіль Майстера')
 
     builder.adjust(1)
     return builder.as_markup()
