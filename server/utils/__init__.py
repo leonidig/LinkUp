@@ -1,1 +1,1 @@
-from .check_exists import check_user_exists
+from .check_exists import check_user_exists, check_master_exists

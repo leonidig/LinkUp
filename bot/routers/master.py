@@ -4,18 +4,13 @@ from aiogram.fsm.context import FSMContext
 
 from ..states import MasterCreate
 from ..keyboards import chose_specialization_kb
+from ..utils import BackendClient, check_user
 
 
 masters_router = Router(name='Masters Router')
 
 
-@masters_router.message(F.text == 'Створити Профіль Майстера')
-async def create_master_profile(message: Message,
-                               state: FSMContext
-                            ):
-    await message.reply('Обери Свою Спеціальність', reply_markup=chose_specialization_kb())
-    await state.set_state(MasterCreate.specialization)
-
+ 
 
 @masters_router.callback_query(F.data.startswith('spec_'))
 async def enter_specialization(callback: CallbackQuery,
@@ -63,6 +58,10 @@ async def enter_location(message: Message,
 async def enter_schedule(message: Message,
                          state: FSMContext
                         ):
-    schedule = message.text
+    await state.update_data(schedule=message.text)
     data = await state.get_data()
+    status = BackendClient.post('/masters/', data=data)
+    if status == 201:
+        await message.reply('Ти зареєстрований')
+
     await message.reply(f'Data -> \n{data}')
