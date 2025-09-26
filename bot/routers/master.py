@@ -10,7 +10,14 @@ from ..utils import BackendClient, check_user
 masters_router = Router(name='Masters Router')
 
 
- 
+@masters_router.message(F.text == 'Створити Профіль Майстера')
+async def create_master_profile(message: Message):
+    status, exists = await check_user(message.from_user.id)
+    if exists:
+        await message.answer("Обери спеціальність", reply_markup=chose_specialization_kb())
+    else:
+        await message.answer("Для того щоб створити профіль майстра тобі пройти реєстрацію")
+
 
 @masters_router.callback_query(F.data.startswith('spec_'))
 async def enter_specialization(callback: CallbackQuery,
@@ -58,10 +65,8 @@ async def enter_location(message: Message,
 async def enter_schedule(message: Message,
                          state: FSMContext
                         ):
-    await state.update_data(schedule=message.text)
+    await state.update_data(schedule=message.text, user_id=message.from_user.id)
     data = await state.get_data()
-    status = BackendClient.post('/masters/', data=data)
+    status = await BackendClient.post('/masters/', data)
     if status == 201:
         await message.reply('Ти зареєстрований')
-
-    await message.reply(f'Data -> \n{data}')

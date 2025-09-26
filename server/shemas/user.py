@@ -1,10 +1,12 @@
-from pydantic import BaseModel, Field, field_validator
+from typing import Optional
+
+from pydantic import BaseModel, Field, field_validator, constr
 
 
 class UserSchema(BaseModel):
     tg_id: int = Field(..., description='User Telegram ID')
-    username: str | None = Field(min_length=4, max_length=55, description='Telegram Username')
-    phone: int = Field(..., description='User Phone Number')
+    username: str | None = None
+    phone: str = Field(..., description='User Phone Number')
     name: str = Field(..., min_length=2, max_length=55, description='User Default Name')
 
 

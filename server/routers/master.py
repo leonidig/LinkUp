@@ -20,9 +20,8 @@ async def create_master(
             detail=f"User with id {data.user_id} not found"
         )
     
-    master = Master(**data.model_dump())
+    master = Master(**data.model_dump(), user=user)
     session.add(master)
-    await session.commit()
     await session.refresh(master)
     return master
 

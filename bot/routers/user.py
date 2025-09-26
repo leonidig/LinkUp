@@ -47,7 +47,7 @@ async def enter_name(message: Message, state: FSMContext):
         'name': message.text
     }
     await state.clear()
-
+    print(data)
     status = await BackendClient.post("/users/", data)
     if status == 201:
         await message.reply("Ти пройшов реїстрацію!", reply_markup=main_kb(exists=True))
