@@ -3,7 +3,7 @@ from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 
 from ..states import MasterCreate
-from ..keyboards import chose_specialization_kb
+from ..keyboards import chose_specialization_kb, main_kb
 from ..utils import BackendClient, check_user
 
 
@@ -42,13 +42,16 @@ async def enter_description(message: Message,
 
 
 @masters_router.message(MasterCreate.experience_years)
-async def enter_experience_years(message: Message, 
-                                 state: FSMContext
-                                 ):
-    experience = int(message.text)
+async def enter_experience_years(message: Message, state: FSMContext):
+    try:
+        experience = int(message.text)
+    except ValueError:
+        await message.reply("Введи, будь ласка, число років досвіду, а не текст")
+ 
     await state.update_data(experience_years=experience)
     await message.reply('Введи або адресу своєї точки\nАбо райони у які ти можеш приїхати')
     await state.set_state(MasterCreate.location)
+
 
 
 @masters_router.message(MasterCreate.location)
@@ -72,4 +75,4 @@ async def enter_schedule(message: Message,
     status, response = await BackendClient.post('/masters/', data)
     print(status)
     if status == 201:
-        await message.reply('Ти зареєстрований')
+        await message.reply('Ти зареєстрований', reply_markup=main_kb(exists=True))
