@@ -67,6 +67,9 @@ async def enter_schedule(message: Message,
                         ):
     await state.update_data(schedule=message.text, user_id=message.from_user.id)
     data = await state.get_data()
-    status = await BackendClient.post('/masters/', data)
+    print('*' * 80)
+    print(data)
+    status, response = await BackendClient.post('/masters/', data)
+    print(status)
     if status == 201:
         await message.reply('Ти зареєстрований')

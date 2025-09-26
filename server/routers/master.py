@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status, Depends, HTTPException
+from sqlalchemy import select
 
 from ..db import AsyncDB, Master, User
 from ..shemas import MasterCreateSchema
@@ -13,7 +14,7 @@ async def create_master(
     data: MasterCreateSchema,
     session = Depends(AsyncDB.get_session)
 ):
-    user = await session.get(User, data.user_id)
+    user = await session.scalar(select(User).where(User.tg_id == data.user_id))
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -22,6 +23,7 @@ async def create_master(
     
     master = Master(**data.model_dump(), user=user)
     session.add(master)
+    await session.flush()
     await session.refresh(master)
     return master
 

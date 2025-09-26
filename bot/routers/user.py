@@ -41,15 +41,16 @@ async def enter_name(message: Message, state: FSMContext):
     await message.react([ReactionTypeEmoji(emoji="👍")])
     context = await state.get_data()
     data = {
-        'tg_id': message.from_user.id,
-        'username': message.from_user.username,
-        'phone': context.get('number'),
-        'name': message.text
+        "tg_id": message.from_user.id,
+        "username": message.from_user.username,
+        "phone": context.get('number'),
+        "name": message.text
     }
     await state.clear()
     print(data)
-    status = await BackendClient.post("/users/", data)
+    status, response = await BackendClient.post("/users/", data)
+    print(status)
     if status == 201:
         await message.reply("Ти пройшов реїстрацію!", reply_markup=main_kb(exists=True))
     else:
-        await message.reply("Помилка")
+        await message.reply("Помилка", response)

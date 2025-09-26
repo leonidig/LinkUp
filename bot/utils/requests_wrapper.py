@@ -25,9 +25,9 @@ class BackendClient:
         return await cls._request("GET", path, params=params)
 
     @classmethod
-    async def post(cls, path: str, data: dict) -> int:
-        status, _ = await cls._request("POST", path, data=data)
-        return status
+    async def post(cls, path: str, data: dict) -> tuple[int, dict]:
+        return await cls._request("POST", path, data=data)
+
 
     @classmethod
     async def put(cls, path: str, data: dict) -> int:

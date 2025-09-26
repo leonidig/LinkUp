@@ -13,7 +13,7 @@ class UserSchema(BaseModel):
     @field_validator('phone')
     @classmethod
     def check_length(cls, value):
-        if len(str(value)) != 12:
+        if len(str(value)) not in [12, 13, 14]:
             raise ValueError('Некорректний формат номера телефона')
         
         return value
