@@ -27,8 +27,6 @@ class UserSchema(BaseModel):
         return value
     
 
-
-
 class UserResponse(BaseModel):
     tg_id: int
     username: str | None
