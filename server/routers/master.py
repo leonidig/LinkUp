@@ -1,8 +1,9 @@
 from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from ..db import AsyncDB, Master, User
-from ..shemas import MasterCreateSchema
+from ..shemas import MasterCreateSchema, MasterResponse
 from ..utils import check_master_exists
 
 
@@ -33,3 +34,14 @@ async def check_exists(tg_id: int,
                    session = Depends(AsyncDB.get_session)
                     ):
     return await check_master_exists(tg_id, session)
+
+
+@masters_router.get("/by_specialization/{spec}", response_model=list[MasterResponse])
+async def get_masters_by_specialization(spec: str, session = Depends(AsyncDB.get_session)):
+    result = await session.scalars(
+        select(Master)
+        .where(Master.specialization == spec)
+        .options(selectinload(Master.user))
+    )
+    masters = result.all()
+    return masters

@@ -25,3 +25,12 @@ class UserSchema(BaseModel):
         if not (6 <= len(str(value)) <= 10):
             raise ValueError("Некорректний формат Telegram ID")
         return value
+    
+
+
+
+class UserResponse(BaseModel):
+    tg_id: int
+    username: str | None
+    phone: str
+    name: str

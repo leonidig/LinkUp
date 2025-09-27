@@ -1,10 +1,7 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
-def chose_specialization_kb():
-    builder = InlineKeyboardBuilder()
-
-    specializations = [
+specializations = [
         "Розробник",
         "Будівельник",
         "Дизайнер",
@@ -17,9 +14,22 @@ def chose_specialization_kb():
         "Репетитор"
     ]
 
+def chose_specialization_kb():
+    builder = InlineKeyboardBuilder()
+
     for spec in specializations:
         builder.button(text=spec, callback_data=f"spec_{spec}")
 
+    builder.adjust(2)
+    return builder.as_markup()
+
+
+def select_master_by_specialization_kb():
+    builder = InlineKeyboardBuilder()
+
+    for spec in specializations:
+        builder.button(text=spec, callback_data=f'select_spec_{spec}')
+    
     builder.adjust(2)
     return builder.as_markup()
 

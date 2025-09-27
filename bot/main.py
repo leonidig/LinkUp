@@ -20,6 +20,7 @@ load_dotenv()
 TOKEN = getenv("BOT_TOKEN")
 
 dp = Dispatcher()
+bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
 
 @dp.message(CommandStart())
@@ -33,7 +34,6 @@ async def command_start_handler(message: Message) -> None:
 
 
 async def start() -> None:
-    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp.include_routers(
         users_register_router,
         masters_register_router,

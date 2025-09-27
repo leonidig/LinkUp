@@ -14,7 +14,7 @@ class Master(Base):
     schedule: Mapped[str]
     is_active: Mapped[bool] = mapped_column(default=True)
     rating: Mapped[float] = mapped_column(default=0.0)
-    reviews_count: Mapped[int] = mapped_column(default=0)
+    # reviews_count: Mapped[int] = mapped_column(default=0)
     bad_grades: Mapped[int] = mapped_column(default=0)
     good_grades: Mapped[int] = mapped_column(default=0)
 
