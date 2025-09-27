@@ -1,7 +1,7 @@
 from os import getenv
 
 from aiogram import Router, F
-from aiogram.types import Message, ReactionTypeEmoji
+from aiogram.types import Message, ReactionTypeEmoji, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiohttp import ClientSession
 from dotenv import load_dotenv
@@ -18,12 +18,24 @@ BACKEND_URL = getenv('BACKEND_URL')
 
 
 @users_register_router.message(F.text == 'Зареєструватися')
-async def start_register(message: Message):
-    status, exists = await check_user(message.from_user.id)
+@users_register_router.callback_query(F.data == 'register')
+async def start_register(update: Message | CallbackQuery):
+    user_id = update.from_user.id
+
+    status, exists = await check_user(user_id)
+
     if not exists:
-        await message.reply('Для звʼязку і безпеки нам потрібно запросити ваш номер', reply_markup=contact_keyboard())
+        text = 'Для звʼязку і безпеки нам потрібно запросити ваш номер'
+        if isinstance(update, Message):
+            await update.reply(text, reply_markup=contact_keyboard())
+        else:
+            await update.message.reply(text, reply_markup=contact_keyboard())
     else:
-        await message.reply('Ти вже завреєстрований')
+        text = 'Ти вже завреєстрований'
+        if isinstance(update, Message):
+            await update.reply(text)
+        else:
+            await update.message.reply(text)
 
 
 @users_register_router.message(F.contact)

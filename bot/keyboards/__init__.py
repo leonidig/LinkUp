@@ -3,4 +3,4 @@ from .reply import (main_kb,
                     name_kb
                 )
 
-from .inline import chose_specialization_kb
+from .inline import chose_specialization_kb, register_kb

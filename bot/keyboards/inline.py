@@ -22,3 +22,11 @@ def chose_specialization_kb():
 
     builder.adjust(2)
     return builder.as_markup()
+
+
+def register_kb():
+    builder = InlineKeyboardBuilder()
+
+    builder.button(text='Зареєструватись', callback_data='register')
+
+    return builder.as_markup()

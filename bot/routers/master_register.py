@@ -3,7 +3,7 @@ from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 
 from ..states import MasterCreate
-from ..keyboards import chose_specialization_kb, main_kb
+from ..keyboards import chose_specialization_kb, main_kb, register_kb
 from ..utils import BackendClient, check_user, check_master
 
 
@@ -15,17 +15,16 @@ async def create_master_profile(message: Message):
     user_id = message.from_user.id
     _, exists_user = await check_user(user_id)
     _, exists_master = await check_master(user_id)
-    print('*' * 80)
-    print(f'User = {exists_user}\nMaster = {exists_master}')
 
     if not exists_user:
-        await message.answer("Для того щоб створити профіль майстра, спершу пройди реєстрацію")
+        await message.answer("Для того щоб створити профіль майстра, спершу пройди реєстрацію", reply_markup=register_kb())
 
     if exists_master:
         await message.reply("Ти вже створив профіль майстра")
-        
+
     if exists_user and not exists_master:
         await message.answer("Обери спеціальність", reply_markup=chose_specialization_kb())
+
 
 @masters_register_router.callback_query(F.data.startswith('spec_'))
 async def enter_specialization(callback: CallbackQuery,
