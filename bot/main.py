@@ -11,7 +11,7 @@ from aiogram.types import Message
 from dotenv import load_dotenv
 
 from .keyboards import main_kb
-from .routers import users_router, masters_router
+from .routers import users_register_router, masters_register_router, masters_catalog_router
 from .utils import BackendClient
 
 
@@ -28,12 +28,15 @@ async def command_start_handler(message: Message) -> None:
     status_code, user_data = await BackendClient.get(f'/users/check-exists/{tg_id}')
     await message.answer(
         f"Hello, {html.bold(message.from_user.full_name)}!",
-        reply_markup=main_kb(exists=user_data)
+        reply_markup=main_kb(exists_user=user_data)
     )
 
 
 async def start() -> None:
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    dp.include_router(users_router)
-    dp.include_router(masters_router)
+    dp.include_routers(
+        users_register_router,
+        masters_register_router,
+        masters_catalog_router
+    )
     await dp.start_polling(bot)

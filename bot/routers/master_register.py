@@ -4,22 +4,30 @@ from aiogram.fsm.context import FSMContext
 
 from ..states import MasterCreate
 from ..keyboards import chose_specialization_kb, main_kb
-from ..utils import BackendClient, check_user
+from ..utils import BackendClient, check_user, check_master
 
 
-masters_router = Router(name='Masters Router')
+masters_register_router = Router(name='Masters Router')
 
 
-@masters_router.message(F.text == 'Створити Профіль Майстера')
+@masters_register_router.message(F.text == "Створити Профіль Майстера")
 async def create_master_profile(message: Message):
-    status, exists = await check_user(message.from_user.id)
-    if exists:
+    user_id = message.from_user.id
+    _, exists_user = await check_user(user_id)
+    _, exists_master = await check_master(user_id)
+    print('*' * 80)
+    print(f'User = {exists_user}\nMaster = {exists_master}')
+
+    if not exists_user:
+        await message.answer("Для того щоб створити профіль майстра, спершу пройди реєстрацію")
+
+    if exists_master:
+        await message.reply("Ти вже створив профіль майстра")
+        
+    if exists_user and not exists_master:
         await message.answer("Обери спеціальність", reply_markup=chose_specialization_kb())
-    else:
-        await message.answer("Для того щоб створити профіль майстра тобі пройти реєстрацію")
 
-
-@masters_router.callback_query(F.data.startswith('spec_'))
+@masters_register_router.callback_query(F.data.startswith('spec_'))
 async def enter_specialization(callback: CallbackQuery,
                                state: FSMContext
                                ):
@@ -31,7 +39,7 @@ async def enter_specialization(callback: CallbackQuery,
     await state.set_state(MasterCreate.description)
 
 
-@masters_router.message(MasterCreate.description)
+@masters_register_router.message(MasterCreate.description)
 async def enter_description(message: Message, 
                             state: FSMContext
                             ):
@@ -41,7 +49,7 @@ async def enter_description(message: Message,
     await state.set_state(MasterCreate.experience_years)
 
 
-@masters_router.message(MasterCreate.experience_years)
+@masters_register_router.message(MasterCreate.experience_years)
 async def enter_experience_years(message: Message, state: FSMContext):
     try:
         experience = int(message.text)
@@ -53,8 +61,7 @@ async def enter_experience_years(message: Message, state: FSMContext):
     await state.set_state(MasterCreate.location)
 
 
-
-@masters_router.message(MasterCreate.location)
+@masters_register_router.message(MasterCreate.location)
 async def enter_location(message: Message,
                          state: FSMContext
                          ):
@@ -64,15 +71,12 @@ async def enter_location(message: Message,
     await state.set_state(MasterCreate.schedule)
 
 
-@masters_router.message(MasterCreate.schedule)
+@masters_register_router.message(MasterCreate.schedule)
 async def enter_schedule(message: Message,
                          state: FSMContext
                         ):
     await state.update_data(schedule=message.text, user_id=message.from_user.id)
     data = await state.get_data()
-    print('*' * 80)
-    print(data)
     status, response = await BackendClient.post('/masters/', data)
-    print(status)
     if status == 201:
-        await message.reply('Ти зареєстрований', reply_markup=main_kb(exists=True))
+        await message.reply('Ти зареєстрований', reply_markup=main_kb(exists_user=True, exists_master=True))

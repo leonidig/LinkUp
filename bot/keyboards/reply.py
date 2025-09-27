@@ -2,14 +2,17 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 
-def main_kb(exists: bool):
+def main_kb(exists_user: bool,
+            exists_master: bool = False
+            ):
     builder = ReplyKeyboardBuilder()
 
-    if not exists:
+    if not exists_user:
         builder.button(text='Зареєструватися')
-    else:
-        builder.button(text='Some Btn If Exists')
+    if not exists_master and exists_user:
         builder.button(text='Створити Профіль Майстера')
+    if exists_user and exists_master:
+        builder.button(text='Some Btn If All')
 
     builder.adjust(1)
     return builder.as_markup()

@@ -1,2 +1,3 @@
-from .user import users_router
-from .master import masters_router
+from .user_regster import users_register_router
+from .master_register import masters_register_router
+from .masters_catalog import masters_catalog_router
