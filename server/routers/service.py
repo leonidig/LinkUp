@@ -30,21 +30,20 @@ async def create_service(
 
 
 @services_router.get("/by_master/{tg_id}", response_model=list[ServiceResponse])
-async def get_services_by_master(
-    tg_id: int,
-    session=Depends(AsyncDB.get_session)
-):
-    master = await session.scalar(
-        select(Master)
-        .join(Master.user)
-        .where(User.tg_id == tg_id)
-        .options(selectinload(Master.services))
-    )
+async def get_services_by_master(tg_id: int,
+                                 session=Depends(AsyncDB.get_session)
+                                ):
+            master = await session.scalar(
+                select(Master)
+                .join(Master.user)
+                .where(User.tg_id == tg_id)
+                .options(selectinload(Master.services))
+            )
 
-    if not master:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Майстра з telegram ID {tg_id} не знайдено"
-        )
+            if not master:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Майстра з telegram ID {tg_id} не знайдено"
+                )
 
-    return master.services
+            return master.services

@@ -24,7 +24,7 @@ async def enter_description(message: Message,
                            state: FSMContext
                         ):
     await state.update_data(title=message.text)
-    await message.reply('Введіть описдл я послуги: ')
+    await message.reply('Введіть опис для я послуги: ')
     await state.set_state(ServiceCreate.description)
 
 
@@ -45,5 +45,7 @@ async def save_service_data(message: Message,
     await state.update_data(master_id=message.from_user.id)
     data = await state.get_data()
     status, response = await BackendClient.post('/services', data)
+    print('*' * 80)
+    print(status, response)
     await message.reply(f'=> {response}')
     await state.clear()
