@@ -40,3 +40,14 @@ def register_kb():
     builder.button(text='Зареєструватись', callback_data='register')
 
     return builder.as_markup()
+
+
+def master_services_kb(services: list[dict]):
+    builder = InlineKeyboardBuilder()
+
+    for service in services:
+        builder.button(text=f'{service.get('title')}', callback_data=f'service_info_{service.get('id')}')
+    
+
+    builder.adjust(1)
+    return builder.as_markup()

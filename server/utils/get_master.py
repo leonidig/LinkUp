@@ -1,10 +1,9 @@
 from sqlalchemy import select
-from fastapi import Depends
-from ..db import AsyncDB, Master, User
+from ..db import Master, User
 
 
 async def get_master_by_tg_id(tg_id: int,
-                              session = Depends(AsyncDB.get_session)
+                              session
                             ) -> Master | None:
         return await session.scalar(
             select(Master)

@@ -4,7 +4,7 @@ from sqlalchemy.orm import selectinload
 
 from ..db import AsyncDB, Master, Service, User
 from ..shemas import ServiceSchema, ServiceResponse
-from ..utils import check_master_exists, get_master_by_tg_id
+from ..utils import check_master_exists, get_master_by_tg_id, get_service_by_id
 
 
 services_router = APIRouter(prefix='/services', tags=['Service'])
@@ -47,3 +47,11 @@ async def get_services_by_master(tg_id: int,
                 )
 
             return master.services
+
+
+@services_router.get('/{service_id}', response_model=ServiceResponse)
+async def get_service(service_id: int,
+                      session = Depends(AsyncDB.get_session)
+                      ):
+        service = await get_service_by_id(service_id, session)
+        return service

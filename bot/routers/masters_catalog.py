@@ -126,6 +126,7 @@ async def show_master_detail(callback: CallbackQuery):
 👍 Гарних відгуків: {master['good_grades']}
 👎 Поганих відгуків: {master['bad_grades']}
 </pre>
+Всі його послуги будуть доступні за кнопкою 'Замовити'
 """
     kb = build_master_detail_kb(master_id, page, spec)
     await callback.message.edit_text(text, reply_markup=kb, parse_mode="HTML")
