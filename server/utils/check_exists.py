@@ -14,7 +14,9 @@ async def check_user_exists(tg_id: int,
         return True
 
 
-async def check_master_exists(tg_id: int, session = Depends(AsyncDB.get_session)) -> bool:
+async def check_master_exists(tg_id: int,
+                              session = Depends(AsyncDB.get_session)
+                            ) -> bool:
     master = await session.scalar(
         select(Master)
         .join(Master.user)

@@ -14,7 +14,8 @@ from .keyboards import main_kb
 from .routers import (users_register_router,
                       masters_register_router,
                       masters_catalog_router,
-                      order_master_router  
+                      order_master_router,
+                       create_service_router
                     )
 from .utils import BackendClient
 
@@ -42,6 +43,7 @@ async def start() -> None:
         users_register_router,
         masters_register_router,
         masters_catalog_router,
-        order_master_router
+        order_master_router,
+        create_service_router
     )
     await dp.start_polling(bot)
