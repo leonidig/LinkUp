@@ -11,7 +11,11 @@ from aiogram.types import Message
 from dotenv import load_dotenv
 
 from .keyboards import main_kb
-from .routers import users_register_router, masters_register_router, masters_catalog_router
+from .routers import (users_register_router,
+                      masters_register_router,
+                      masters_catalog_router,
+                      order_master_router  
+                    )
 from .utils import BackendClient
 
 
@@ -37,6 +41,7 @@ async def start() -> None:
     dp.include_routers(
         users_register_router,
         masters_register_router,
-        masters_catalog_router
+        masters_catalog_router,
+        order_master_router
     )
     await dp.start_polling(bot)

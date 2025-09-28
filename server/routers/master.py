@@ -45,3 +45,15 @@ async def get_masters_by_specialization(spec: str, session = Depends(AsyncDB.get
     )
     masters = result.all()
     return masters
+
+
+@masters_router.get('/{master_tg_id}', response_model=MasterResponse)
+async def master_info(master_tg_id: int, session = Depends(AsyncDB.get_session)):
+    master = await session.scalar(
+        select(Master)
+        .where(Master.user.has(User.tg_id == master_tg_id))
+        .options(selectinload(Master.user))
+    )
+    if not master:
+        raise HTTPException(status_code=404, detail="Майстра не знайдено")
+    return master
