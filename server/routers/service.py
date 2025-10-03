@@ -4,8 +4,11 @@ from sqlalchemy.orm import selectinload
 
 from ..db import AsyncDB, Master, Service, User
 from ..shemas import ServiceSchema, ServiceResponse
-from ..utils import check_master_exists, get_master_by_tg_id, get_service_by_id
-
+from ..utils import (check_master_exists,
+                     get_master_by_tg_id,
+                     get_service_by_id,
+                     get_master_services 
+                    )
 
 services_router = APIRouter(prefix='/services', tags=['Service'])
 
@@ -33,13 +36,8 @@ async def create_service(
 async def get_services_by_master(tg_id: int,
                                  session=Depends(AsyncDB.get_session)
                                 ):
-            master = await session.scalar(
-                select(Master)
-                .join(Master.user)
-                .where(User.tg_id == tg_id)
-                .options(selectinload(Master.services))
-            )
-
+            
+            master = await get_master_services(tg_id, session)
             if not master:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
@@ -55,3 +53,16 @@ async def get_service(service_id: int,
                       ):
         service = await get_service_by_id(service_id, session)
         return service
+
+
+@services_router.get('/count-master-services/{tg_id}')
+async def get_master_services_count(tg_id: int,
+                                    session = Depends(AsyncDB.get_session)
+                                    ):
+        master = await get_master_services(tg_id, session)
+        if not master:
+               raise HTTPException(
+                      detail=f'Не знайдено',
+                      status_code=status.HTTP_404_NOT_FOUND
+               )
+        return len(master.services)
