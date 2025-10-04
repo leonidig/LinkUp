@@ -8,7 +8,7 @@ class Master(Base):
     __tablename__ = "masters"
 
     specialization: Mapped[str]
-    description: Mapped[str] = mapped_column(nullable=True)
+    description: Mapped[str]
     experience_years: Mapped[int] = mapped_column(default=0)
     location: Mapped[str]
     schedule: Mapped[str]
