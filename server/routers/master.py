@@ -22,6 +22,13 @@ async def create_master(
             detail=f"User with id {data.user_id} not found"
         )
     
+    master = await check_master_exists(data.user_id, session)
+    if master:
+        raise HTTPException(
+            detail='Ви не можете створити більше 1го профіля майстра',
+            status_code=status.HTTP_409_CONFLICT
+        )
+    
     master = Master(**data.model_dump(), user=user)
     session.add(master)
     await session.flush()
