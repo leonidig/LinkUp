@@ -18,7 +18,7 @@ async def client():
 @pytest.fixture
 async def test_user(client):
     user_data = {
-        "tg_id": 344444,
+        "tg_id": 1234567,
         "username": "testuser",
         "phone": "+380991112233",
         "name": "Test User"
@@ -32,7 +32,7 @@ async def test_user(client):
 @pytest.fixture
 async def test_user_whthout_master_profile(client):
     user_data = {
-        "tg_id": 128742,
+        "tg_id": 1234567,
         "username": "User | Not master",
         "phone": "+888123123123",
         "name": "Not Master"
@@ -51,7 +51,7 @@ async def clean_db():
     yield
 
 
-# fixtures.py
+
 @pytest.fixture
 async def test_master(client, test_user):
     data = {
@@ -60,8 +60,23 @@ async def test_master(client, test_user):
         'experience_years': 3,
         'location': 'Some Location',
         'schedule': 'Monday-Friday 09:00-18:00',
-        'user_id': test_user['tg_id']
+        'tg_id': test_user.get('tg_id')
     }
     response = await client.post('/masters/', json=data)
     assert response.status_code == 201
     return response.json() 
+
+
+@pytest.fixture
+async def test_service(client, test_master):
+    tg_id = test_master.get("tg_id")
+    data = {
+        "title": "Some test title for creating service",
+        "description": "Some test description for creating service test test test",
+        "price": 1500,
+        "master_id": tg_id
+    }
+    response = await client.post("/services/", json=data)
+    assert response.status_code == 201
+    return response.json()
+

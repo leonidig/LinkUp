@@ -74,7 +74,7 @@ async def enter_location(message: Message,
 async def enter_schedule(message: Message,
                          state: FSMContext
                         ):
-    await state.update_data(schedule=message.text, user_id=message.from_user.id)
+    await state.update_data(schedule=message.text, tg_id=message.from_user.id)
     data = await state.get_data()
     status, response = await BackendClient.post('/masters/', data)
     if status == 201:

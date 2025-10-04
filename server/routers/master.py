@@ -15,14 +15,14 @@ async def create_master(
     data: MasterCreateSchema,
     session = Depends(AsyncDB.get_session)
 ):
-    user = await session.scalar(select(User).where(User.tg_id == data.user_id))
+    user = await session.scalar(select(User).where(User.tg_id == data.tg_id))
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id {data.user_id} not found"
+            detail=f"User with id {data.tg_id} not found"
         )
     
-    master = await check_master_exists(data.user_id, session)
+    master = await check_master_exists(data.tg_id, session)
     if master:
         raise HTTPException(
             detail='Ви не можете створити більше 1го профіля майстра',

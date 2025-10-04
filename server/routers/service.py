@@ -32,7 +32,7 @@ async def create_service(
     return service
 
 
-@services_router.get("/by_master/{tg_id}", response_model=list[ServiceResponse])
+@services_router.get("/by-master/{tg_id}", response_model=list[ServiceResponse])
 async def get_services_by_master(tg_id: int,
                                  session=Depends(AsyncDB.get_session)
                                 ):
