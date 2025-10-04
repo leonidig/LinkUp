@@ -3,7 +3,7 @@ from .user import UserResponse
 
 
 class MasterCreateSchema(BaseModel):
-    specialization: str = Field(..., max_length=100, description="Спеціалізація майстра")
+    specialization: str = Field(..., max_length=18, description="Спеціалізація майстра")
     description: str = Field(min_length=55, max_length=1055, description="Опис майстра")
     experience_years: int = Field(0, ge=0, le=70, description="Досвід у роках")
     location: str = Field(...,min_length=5, max_length=100, description="Локація майстра")

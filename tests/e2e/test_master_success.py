@@ -41,6 +41,8 @@ async def test_check_exists(client, test_user):
 async def test_masters_by_spec(client, spec):
         response = await client.get(f'/masters/by-specialization/{spec}')
         assert response.status_code == 200
+        data = response.json()
+        assert all(m['specialization'] == spec for m in data)
 
 
 #master_info

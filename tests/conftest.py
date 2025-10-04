@@ -28,6 +28,20 @@ async def test_user(client):
     assert response.status_code == 201
     return user_data
 
+# fixture for - test_master_info_with_not_exists_telegram_id 
+@pytest.fixture
+async def test_user_whthout_master_profile(client):
+    user_data = {
+        "tg_id": 128742,
+        "username": "User | Not master",
+        "phone": "+888123123123",
+        "name": "Not Master"
+    }
+
+    response = await client.post("/users/", json=user_data)
+    assert response.status_code == 201
+    return user_data
+
 
 @pytest.fixture(autouse=True)
 async def clean_db():
