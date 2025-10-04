@@ -1,6 +1,6 @@
 import pytest
-from httpx import AsyncClient, ASGITransport
 from sqlalchemy import delete
+from httpx import AsyncClient, ASGITransport
 
 from . import app
 from server.db import AsyncDB, Master, User
@@ -35,3 +35,19 @@ async def clean_db():
         await session.execute(delete(Master))
         await session.commit()
     yield
+
+
+# fixtures.py
+@pytest.fixture
+async def test_master(client, test_user):
+    data = {
+        'specialization': 'Розробник',
+        'description': 'Some description for developer test creation master fixture',
+        'experience_years': 3,
+        'location': 'Some Location',
+        'schedule': 'Monday-Friday 09:00-18:00',
+        'user_id': test_user['tg_id']
+    }
+    response = await client.post('/masters/', json=data)
+    assert response.status_code == 201
+    return response.json() 

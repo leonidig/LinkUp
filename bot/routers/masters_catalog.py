@@ -11,7 +11,7 @@ PAGE_SIZE = 1
 
 
 async def fetch_masters(spec: str):
-    status, masters = await BackendClient.get(f"/masters/by_specialization/{spec}")
+    status, masters = await BackendClient.get(f"/masters/by-specialization/{spec}")
     return masters
 
 

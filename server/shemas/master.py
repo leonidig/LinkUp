@@ -48,3 +48,4 @@ class MasterResponse(BaseModel):
     bad_grades: int
     good_grades: int
     user: UserResponse
+    

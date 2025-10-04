@@ -43,15 +43,19 @@ async def check_exists(tg_id: int,
     return await check_master_exists(tg_id, session)
 
 
-@masters_router.get("/by_specialization/{spec}", response_model=list[MasterResponse])
-async def get_masters_by_specialization(spec: str, session = Depends(AsyncDB.get_session)):
-    result = await session.scalars(
-        select(Master)
-        .where(Master.specialization == spec)
-        .options(selectinload(Master.user))
-    )
-    masters = result.all()
-    return masters
+@masters_router.get("/by-specialization/{spec}", response_model=list[MasterResponse])
+async def masters_by_spec(spec: str, session = Depends(AsyncDB.get_session)):
+    allowed_specs = [
+        "Розробник", "Будівельник", "Дизайнер", "Фотограф", "Водій",
+        "Копірайтер", "Майстер по ремонту", "Майстер краси", "Різноробочий", "Репетитор"
+    ]
+    spec_clean = spec.strip()
+    if spec_clean not in allowed_specs:
+        raise HTTPException(status_code=422, detail=f"Спеціалізація {spec_clean} не допустима")
+
+    masters = await session.scalars(select(Master).where(Master.specialization == spec_clean))
+    return masters.all()
+
 
 
 @masters_router.get('/{master_tg_id}', response_model=MasterResponse)
