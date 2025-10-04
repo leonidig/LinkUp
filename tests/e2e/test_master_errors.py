@@ -23,7 +23,7 @@ async def test_create_master_error_409(client, test_user):
 
 #create master with 422 ( short description)  
 @pytest.mark.asyncio
-async def test_create_master_invalid_description(client, test_user):
+async def test_create_master_short_description(client, test_user):
     data = {
         'specialization': 'Розробник',
         'description': 'Short',
