@@ -7,14 +7,14 @@ class MasterCreateSchema(BaseModel):
     description: str = Field(min_length=55, max_length=1055, description="Опис майстра")
     experience_years: int = Field(0, ge=0, le=70, description="Досвід у роках")
     location: str = Field(
-        ..., min_length=5, max_length=100, description="Локація майстра"
+        ..., min_length=10, max_length=155, description="Локація майстра"
     )
     schedule: str = Field(
         ...,
         min_length=5,
         max_length=255,
         description="Розклад роботи (наприклад, Пн-Пт 9:00-18:00)",
-    )
+    ) 
     tg_id: int = Field(..., description="ID користувача, який є майстром")
 
     @field_validator("tg_id")

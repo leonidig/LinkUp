@@ -39,43 +39,68 @@ async def enter_specialization(callback: CallbackQuery,
 
 
 @masters_register_router.message(MasterCreate.description)
-async def enter_description(message: Message, 
-                            state: FSMContext
-                            ):
-    description = message.text
-    await state.update_data(description = description)
-    await message.reply('Cкільки в тебе досвіду ( в роках ): ')
-    await state.set_state(MasterCreate.experience_years)
+async def enter_description(message: Message, state: FSMContext):
+    description = message.text.strip()
+
+    if len(description) < 55:
+        await message.reply("❌ Опис занадто короткий. Мінімум 55 символів.")
+    elif len(description) > 1055:
+        await message.reply("❌ Опис занадто довгий. Максимум 1055 символів.")
+    else:
+        await state.update_data(description=description)
+        await message.reply("✅ Опис прийнято! Скільки в тебе досвіду (в роках)?")
+        await state.set_state(MasterCreate.experience_years)
+
 
 
 @masters_register_router.message(MasterCreate.experience_years)
 async def enter_experience_years(message: Message, state: FSMContext):
-    try:
+    if not message.text.isdigit():
+        await message.reply("❌ Введи, будь ласка, число років досвіду (тільки цифри).")
+    else:
         experience = int(message.text)
-    except ValueError:
-        await message.reply("Введи, будь ласка, число років досвіду, а не текст")
- 
-    await state.update_data(experience_years=experience)
-    await message.reply('Введи або адресу своєї точки\nАбо райони у які ти можеш приїхати')
-    await state.set_state(MasterCreate.location)
+
+        if experience < 1:
+            await message.reply("❌ Досвід не може бути менше 1 року.")
+        elif experience > 70:
+            await message.reply("❌ Досвід не може бути більше 70 років.")
+        else:
+
+            await state.update_data(experience_years=experience)
+            await message.reply("✅ Прийнято! Введи або адресу своєї точки\nАбо райони у які ти можеш приїхати\nАбо наприклад онлайн по всьому світу: ")
+            await state.set_state(MasterCreate.location)
 
 
 @masters_register_router.message(MasterCreate.location)
-async def enter_location(message: Message,
-                         state: FSMContext
-                         ):
-    location = message.text
-    await state.update_data(location=location)
-    await message.reply('Введи свій розклад: ')
-    await state.set_state(MasterCreate.schedule)
+async def enter_location(message: Message, state: FSMContext):
+    location = message.text.strip()
+
+    if len(location) < 10:
+        await message.reply("❌ Адреса або райони занадто короткі. Мінімум 10 символів.")
+    elif len(location) > 155:
+        await message.reply("❌ Адреса або райони занадто довгі. Максимум 155 символів.")
+    else:
+        await state.update_data(location=location)
+        await message.reply("✅ Прийнято! Введи свій розклад:")
+        await state.set_state(MasterCreate.schedule)
+
 
 
 @masters_register_router.message(MasterCreate.schedule)
-async def enter_schedule(message: Message,
-                         state: FSMContext
-                        ):
-    await state.update_data(schedule=message.text, tg_id=message.from_user.id)
-    data = await state.get_data()
-    status, response = await BackendClient.post('/masters/', data)
-    if status == 201:
-        await message.reply('Ти зареєстрований', reply_markup=main_kb(exists_user=True, exists_master=True))
+async def enter_schedule(message: Message, state: FSMContext):
+    schedule = message.text.strip()
+
+    if len(schedule) < 5:
+        await message.reply("❌ Розклад занадто короткий. Мінімум 5 символів.")
+    elif len(schedule) > 255:
+        await message.reply("❌ Розклад занадто довгий. Максимум 255 символів.")
+    else:
+        await state.update_data(schedule=schedule, tg_id=message.from_user.id)
+        data = await state.get_data()
+        status, response = await BackendClient.post('/masters/', data)
+
+        if status == 201:
+            await message.reply(
+                "Ти зареєстрований ✅",
+                reply_markup=main_kb(exists_user=True, exists_master=True)
+            )
