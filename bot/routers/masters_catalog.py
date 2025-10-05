@@ -67,16 +67,17 @@ async def show_masters(callback: CallbackQuery):
     if not masters:
         await callback.message.answer("❌ Майстрів не знайдено!")
 
-    page = 1
-    total_pages = max(1, (len(masters) + PAGE_SIZE - 1) // PAGE_SIZE)
-    masters_page = masters[(page-1)*PAGE_SIZE : page*PAGE_SIZE]
+    else:
+        page = 1
+        total_pages = max(1, (len(masters) + PAGE_SIZE - 1) // PAGE_SIZE)
+        masters_page = masters[(page-1)*PAGE_SIZE : page*PAGE_SIZE]
 
-    kb = build_masters_kb(masters_page, page, total_pages, spec)
-    await callback.message.answer(
-        f"🔎 Майстри ({spec}) — Сторінка {page}/{total_pages}",
-        reply_markup=kb
-    )
-    await callback.answer()
+        kb = build_masters_kb(masters_page, page, total_pages, spec)
+        await callback.message.answer(
+            f"🔎 Майстри ({spec}) — Сторінка {page}/{total_pages}",
+            reply_markup=kb
+        )
+        await callback.answer()
 
 
 @masters_catalog_router.callback_query(F.data.startswith("masters_page:"))

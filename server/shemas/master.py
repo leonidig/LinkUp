@@ -54,3 +54,6 @@ class MasterResponse(BaseModel):
     bad_grades: int
     good_grades: int
     user: UserResponse
+
+    class Config:
+        from_attributes = True

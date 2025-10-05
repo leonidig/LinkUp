@@ -15,7 +15,7 @@ from .routers import (users_register_router,
                       masters_register_router,
                       masters_catalog_router,
                       order_master_router,
-                       create_service_router
+                      create_service_router
                     )
 from .utils import BackendClient
 
