@@ -32,7 +32,7 @@ async def test_user(client):
 @pytest.fixture
 async def test_user_whthout_master_profile(client):
     user_data = {
-        "tg_id": 1234567,
+        "tg_id": 11234567,
         "username": "User | Not master",
         "phone": "+888123123123",
         "name": "Not Master"

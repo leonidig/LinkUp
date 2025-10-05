@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
@@ -34,4 +34,9 @@ async def get_master(tg_id: int, session = Depends(AsyncDB.get_session)):
         .options(selectinload(User.master))
         .where(User.tg_id == tg_id)
     )
+    if not user:
+        raise HTTPException(
+            detail=f'Юзера з ID {tg_id} не знайдено',
+            status_code=status.HTTP_404_NOT_FOUND
+        )
     return user.master

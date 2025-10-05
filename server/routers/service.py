@@ -10,6 +10,7 @@ from ..utils import (check_master_exists,
                      get_master_services 
                     )
 
+
 services_router = APIRouter(prefix='/services', tags=['Service'])
 
 
@@ -62,7 +63,7 @@ async def get_master_services_count(tg_id: int,
         master = await get_master_services(tg_id, session)
         if not master:
                raise HTTPException(
-                      detail=f'Не знайдено',
+                      detail=f'Майстера з ID {tg_id} не знайдено',
                       status_code=status.HTTP_404_NOT_FOUND
                )
         return len(master.services)

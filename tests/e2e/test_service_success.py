@@ -47,4 +47,6 @@ async def test_get_service_by_id(client, test_service):
 async def test_count_master_services(client, test_master):
     response = await client.get(f'/services/count-master-services/{test_master.get('tg_id')}')
     count = response.json()
+
     assert response.status_code == 200
+    assert count > 0

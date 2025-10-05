@@ -1,13 +1,5 @@
 import pytest
-
-
-def get_error_msgs(response):
-    json_data = response.json()
-    if response.status_code != 422 or "detail" not in json_data:
-        raise ValueError(f"No validation errors in response: {json_data}")
-    # возвращаем список всех msg
-    return [err["msg"] for err in json_data["detail"]]
-
+from . import get_error_msgs
 
 
 # create service 422 ( short description )
@@ -61,6 +53,7 @@ async def test_create_service_long_title(client, test_master):
 
 
 # create service 422 ( low price )
+@pytest.mark.asyncio
 async def test_create_service_low_price(client, test_master):
     data = {
         "title": "Some test title for creating service",
@@ -72,3 +65,34 @@ async def test_create_service_low_price(client, test_master):
     msg = get_error_msgs(response)
     assert 'Input should be greater than 0' in msg
     assert response.status_code == 422
+
+
+
+# get master services 404 ( invalid master telegram id )
+@pytest.mark.asyncio
+async def test_get_master_services_invalid_tg_id(client):
+    response = await client.get(f'/services/by-master/1')
+    error = response.json()
+
+    assert response.status_code == 404
+    assert error.get('detail') == 'Майстра з telegram ID 1 не знайдено'
+
+
+# get service 404 ( not exists service with this ID)
+@pytest.mark.asyncio
+async def test_get_service_info_invalid_tg_id(client):
+    response = await client.get('/services/139820')
+    error = response.json()
+
+    assert error.get('detail') == 'Сервіс з ID 139820 не знайдено'
+    assert response.status_code == 404
+    
+
+# get master services count 404 ( invalid telegram ID )
+@pytest.mark.asyncio
+async def test_get_master_services_count_invalid_id(client):
+    response = await client.get('/services/count-master-services/9999999')
+    error = response.json()
+
+    assert response.status_code == 404
+    assert error.get('detail') == 'Майстера з ID 9999999 не знайдено'
