@@ -23,29 +23,55 @@ async def create_service(message: Message,
 async def enter_description(message: Message,
                            state: FSMContext
                         ):
-    await state.update_data(title=message.text)
-    await message.reply('Введіть опис для я послуги: ')
-    await state.set_state(ServiceCreate.description)
+    title = message.text
+    if len(title) < 20:
+        await message.reply('❌ Заголовок не може бути коротше 20 символів')
+    elif len(title) > 122:
+        await message.reply('❌ Заголовок не може бути довше ніж 122 символа')
+    else:
+        await state.update_data(title=message.text)
+        await message.reply('Введіть опис для я послуги: ')
+        await state.set_state(ServiceCreate.description)
 
 
 @create_service_router.message(ServiceCreate.description)
 async def enter_price(message: Message,
                       state: FSMContext
                       ):
-    await state.update_data(description=message.text)
-    await message.reply('Введіть ціну послуги (в грн): ')
-    await state.set_state(ServiceCreate.price)
+    description = message.text
+
+    if len(description) < 20:
+        await message.reply('❌ Опис не може бути коротше ніж 20 символів')
+    elif len(description) > 1055:
+        await message.reply('❌ Опис не може бути довше ніж 1055 символів')
+    else:
+        await state.update_data(description=description)
+        await message.reply('Введіть ціну послуги (в грн): ')
+        await state.set_state(ServiceCreate.price)
 
 
 @create_service_router.message(ServiceCreate.price)
 async def save_service_data(message: Message,
                             state: FSMContext
                             ):
-    await state.update_data(price=int(message.text))
-    await state.update_data(master_id=message.from_user.id)
-    data = await state.get_data()
-    status, response = await BackendClient.post('/services', data)
-    print('*' * 80)
-    print(status, response)
-    await message.reply(f'=> {response}')
-    await state.clear()
+    
+    if not message.text.isdigit():
+        await message.reply('❌ Введи число')
+    else:
+        price = int(message.text)
+
+        if price < 1:
+            await message.reply('❌ Введи корректну ціну послуги')
+        elif price > 9999999:
+            await message.reply('❌ Введи меньшу ціну ніж 9999999')
+        else:
+            await state.update_data(price=price)
+            await state.update_data(master_id=message.from_user.id)
+            print('*' * 100)
+            print(f'{message.from_user.id}')
+            data = await state.get_data()
+            status, response = await BackendClient.post('/services', data)
+            print('*' * 80)
+            print(status, response)
+            await message.reply(f'=> {response}')
+            await state.clear()
