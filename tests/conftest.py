@@ -28,6 +28,7 @@ async def test_user(client):
     assert response.status_code == 201
     return user_data
 
+
 # fixture for - test_master_info_with_not_exists_telegram_id 
 @pytest.fixture
 async def test_user_whthout_master_profile(client):
@@ -62,14 +63,17 @@ async def test_master(client, test_user):
         'schedule': 'Monday-Friday 09:00-18:00',
         'tg_id': test_user.get('tg_id')
     }
+
     response = await client.post('/masters/', json=data)
     assert response.status_code == 201
-    return response.json() 
+    return response.json()
+
+    
 
 
 @pytest.fixture
 async def test_service(client, test_master):
-    tg_id = test_master.get("tg_id")
+    tg_id = test_master['user']['tg_id']
     data = {
         "title": "Some test title for creating service",
         "description": "Some test description for creating service test test test",

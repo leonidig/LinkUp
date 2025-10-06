@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from .user import UserResponse
 
 
@@ -45,6 +45,7 @@ class MasterCreateSchema(BaseModel):
 
 
 class MasterResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     specialization: str
     description: str
     experience_years: int
@@ -54,6 +55,3 @@ class MasterResponse(BaseModel):
     bad_grades: int
     good_grades: int
     user: UserResponse
-
-    class Config:
-        from_attributes = True

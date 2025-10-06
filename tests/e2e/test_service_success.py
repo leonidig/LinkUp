@@ -8,7 +8,7 @@ async def test_create_service(client, test_master):
         'title':  'Some test title for service',
         'description': 'Some test description for some test service test test test',
         'price': 1500,
-        'master_id':test_master.get('tg_id')
+        'master_id': test_master['user']['tg_id']
     }
     response = await client.post('/services/', json=data)
 
@@ -26,7 +26,7 @@ async def test_service_info(client, test_service):
 # get master`s services
 @pytest.mark.asyncio
 async def test_get_services_by_master(client, test_master):
-    tg_id = test_master.get('tg_id')
+    tg_id = test_master['user']['tg_id']
     response = await client.get(f'/services/by-master/{tg_id}')
     assert response.status_code == 200
     services = response.json()
@@ -45,8 +45,18 @@ async def test_get_service_by_id(client, test_service):
 # get count master services
 @pytest.mark.asyncio
 async def test_count_master_services(client, test_master):
-    response = await client.get(f'/services/count-master-services/{test_master.get('tg_id')}')
+    tg_id = test_master['user']['tg_id']
+    response = await client.get(f'/services/count-master-services/{tg_id}')
     count = response.json()
 
     assert response.status_code == 200
     assert count > 0
+
+
+
+# get master user profile by service ID
+@pytest.mark.asyncio
+async def test_get_master_user_profile_by_service_id(client, test_service):
+    response = await client.get(f'/services/get-master-by-service/{test_service.get('id')}')
+    assert response.status_code == 200
+    print('*' * 80, f'\n{response.json()}')

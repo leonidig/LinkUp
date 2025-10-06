@@ -24,7 +24,7 @@ class Order(Base):
     deadline: Mapped[datetime] = mapped_column(nullable=True)
     description: Mapped[str]
 
-    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now())
     price: Mapped[int]
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))

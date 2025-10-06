@@ -48,7 +48,7 @@ async def test_masters_by_spec(client, spec):
 #master_info
 @pytest.mark.asyncio
 async def test_master_info(client, test_master):
-    tg_id = test_master.get('tg_id')
+    tg_id = test_master['user']['tg_id']
     
     response = await client.get(f'/masters/{tg_id}')
     assert response.status_code == 200

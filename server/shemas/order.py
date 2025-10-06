@@ -1,14 +1,14 @@
 from typing import Optional
 from datetime import datetime
-from pydantic import BaseModel, field_validator, Field
+from pydantic import BaseModel, ConfigDict, field_validator, Field
 
 
 class OrderCreateSchema(BaseModel):
     user_tg_id: int = Field(..., description='User Telegram ID')
     master_tg_id: int = Field(..., description='Master Telegram ID')
     service_id: int = Field(..., description='Service ID')
-    description: str = Field(..., description='Description For Order')
-    price: int = Field(..., description='Price For Order')
+    description: str = Field(...,min_length=25, max_length=1055, description='Description For Order')
+    price: int = Field(..., gt=0, lt=999999, description='Price For Order')
     scheduled_at: Optional[datetime] = None
     deadline: Optional[datetime] = None
 
@@ -21,6 +21,8 @@ class OrderCreateSchema(BaseModel):
         return value
 
 class OrderResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     user_id: int
     master_id: int
@@ -31,5 +33,3 @@ class OrderResponse(BaseModel):
     status: str
     created_at: datetime
 
-    class Config:
-        orm_mode = True
