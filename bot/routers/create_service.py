@@ -67,11 +67,10 @@ async def save_service_data(message: Message,
         else:
             await state.update_data(price=price)
             await state.update_data(master_id=message.from_user.id)
-            print('*' * 100)
-            print(f'{message.from_user.id}')
             data = await state.get_data()
             status, response = await BackendClient.post('/services', data)
-            print('*' * 80)
-            print(status, response)
-            await message.reply(f'=> {response}')
+            if status == 201:
+                await message.reply('Створено!')
+            else:
+                await message.reply(f'=> {response}')
             await state.clear()

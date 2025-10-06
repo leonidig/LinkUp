@@ -1,3 +1,4 @@
+from datetime import datetime
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -13,7 +14,7 @@ order_master_router = Router()
 async def order_master(callback: CallbackQuery, state: FSMContext):
     master_tg_id = callback.data.split('_')[1]
     await state.update_data(master_tg_id = master_tg_id)
-    status, response = await BackendClient.get(f'/services/by_master/{master_tg_id}')
+    status, response = await BackendClient.get(f'/services/by-master/{master_tg_id}')
     if not response:
         await callback.message.reply('У Майстра Немає Послуг')
     else:
@@ -24,4 +25,19 @@ async def order_master(callback: CallbackQuery, state: FSMContext):
 async def get_service_info(callback: CallbackQuery):
     service_id = int(callback.data.split('_')[2])
     status, response = await BackendClient.get(f'/services/{service_id}')
-    await callback.message.reply(f'{response}')
+
+    created_at = response["created_at"]
+    date = datetime.fromisoformat(created_at).strftime("%Y-%m-%d %H:%M")
+    text = f"""
+<b>💼 {response['title']}</b>
+
+📄 <b>Опис:</b>
+<blockquote>{response['description']}</blockquote>
+
+💰 <b>Ціна:</b> <blockquote>{response['price']}грн </blockquote>  
+
+🗓 <b>Створено:</b> <blockquote>{date}</blockquote>
+
+Щоб замовити цю послугу — натисни кнопку <b>'Замовити'</b>.
+"""
+    await callback.message.reply(text=text, parse_mode="HTML")

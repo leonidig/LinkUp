@@ -38,7 +38,7 @@ def select_master_by_specialization_kb():
 def register_kb():
     builder = InlineKeyboardBuilder()
 
-    builder.button(text="Зареєструватись", callback_data="register")
+    builder.button(text="Зареєструватися", callback_data="register")
 
     return builder.as_markup()
 
@@ -47,8 +47,6 @@ def master_services_kb(services: list[dict]):
     builder = InlineKeyboardBuilder()
 
     for service in services:
-        print("*" * 80)
-        print(service)
         builder.button(
             text=f"{service.get('title')}",
             callback_data=f"service_info_{service.get('id')}",
