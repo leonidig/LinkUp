@@ -21,6 +21,7 @@ class Order(Base):
 
     status: Mapped[OrderStatus] = mapped_column(default=OrderStatus.pending)
     scheduled_at: Mapped[datetime] = mapped_column(nullable=True)
+    deadline: Mapped[datetime] = mapped_column(nullable=True)
     description: Mapped[str]
 
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)

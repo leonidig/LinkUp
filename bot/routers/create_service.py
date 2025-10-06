@@ -10,7 +10,9 @@ from ..states import ServiceCreate
 create_service_router = Router()
 
 
+
 @create_service_router.message(F.text == 'Створити Послугу')
+@create_service_router.callback_query(F.data == 'create_service_master')
 @master_only
 async def create_service(message: Message,
                          state: FSMContext
@@ -71,6 +73,8 @@ async def save_service_data(message: Message,
             status, response = await BackendClient.post('/services', data)
             if status == 201:
                 await message.reply('Створено!')
+
             else:
                 await message.reply(f'=> {response}')
+
             await state.clear()

@@ -50,7 +50,7 @@ def build_masters_kb(masters, page, total_pages, spec):
 def build_master_detail_kb(master_id, page, spec):
     builder = InlineKeyboardBuilder()
     builder.row(
-        InlineKeyboardButton(text="✅ Замовити", callback_data=f"make_order_{master_id}")
+        InlineKeyboardButton(text="Всі послуги цього майстра", callback_data=f"make_order_{master_id}")
     )
     builder.row(
         InlineKeyboardButton(text="⬅️ Назад", callback_data=f"masters_page:{page}:{spec}")

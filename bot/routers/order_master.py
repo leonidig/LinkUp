@@ -47,5 +47,5 @@ async def get_service_info(callback: CallbackQuery):
     await callback.message.reply(
         text=text,
         parse_mode="HTML",
-        reply_markup=order_master_service_kb(username=username, master_tg_id=master_tg_id)
+        reply_markup=order_master_service_kb(username=username, master_tg_id=master_tg_id, service_id=response.get('id'))
     )

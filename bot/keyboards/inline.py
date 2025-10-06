@@ -56,10 +56,19 @@ def master_services_kb(services: list[dict]):
     return builder.as_markup()
 
 
-def order_master_service_kb(username: str, master_tg_id: int):
+def order_master_service_kb(username: str, master_tg_id: int, service_id: int):
     builder = InlineKeyboardBuilder()
     builder.button(text='Списатися з майстром', url=f'https://t.me/{username}')
-    builder.button(text='Зробити замовлення', callback_data=f'ordering_master_{master_tg_id}')
+    builder.button(text='Зробити замовлення', callback_data=f'ordering_master_{master_tg_id}_{service_id}')
+
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def suggest_create_service():
+    builder = InlineKeyboardBuilder()
+
+    builder.button(text='Створити Послугу', callback_data='create_service_master')
 
     builder.adjust(1)
     return builder.as_markup()

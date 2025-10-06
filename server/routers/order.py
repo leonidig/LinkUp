@@ -45,7 +45,8 @@ async def create_order(
         service_id=data.service_id,
         description=data.description,
         price=data.price,
-        scheduled_at=data.scheduled_at
+        scheduled_at=data.scheduled_at,
+        deadline=data.deadline
     )
 
     session.add(order)

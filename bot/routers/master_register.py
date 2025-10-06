@@ -101,7 +101,7 @@ async def enter_schedule(message: Message, state: FSMContext):
 
         if status == 201:
             await message.reply(
-                "Ти зареєстрований ✅",
+                "Ти зареєстрований ✅\nТакож можеш вже додати свої послуги натиснувши на кнопку нижче",
                 reply_markup=main_kb(exists_user=True, exists_master=True)
             )
 
