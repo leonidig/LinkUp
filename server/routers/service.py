@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from ..db import AsyncDB, Master, Service, User
-from ..shemas import ServiceSchema, ServiceResponse
+from ..shemas import ServiceSchema, ServiceResponse, MasterResponse
 from ..utils import (check_master_exists,
                      get_master_by_tg_id,
                      get_service_by_id,
@@ -67,3 +67,16 @@ async def get_master_services_count(tg_id: int,
                       status_code=status.HTTP_404_NOT_FOUND
                )
         return len(master.services)
+
+
+@services_router.get('/get-master-by-service/{service_id}')
+async def get_master_by_service_id(service_id: int, session=Depends(AsyncDB.get_session)):
+    service = await get_service_by_id(service_id=service_id, session=session)
+    master = await session.get(Master, service.master_id)
+
+    if not master:
+        raise HTTPException(status_code=404, detail="Майстер не знайдений")
+
+    await session.refresh(master, attribute_names=["user"])
+    
+    return master.user

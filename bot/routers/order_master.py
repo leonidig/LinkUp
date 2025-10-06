@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
 from ..utils import BackendClient
-from ..keyboards import master_services_kb
+from ..keyboards import master_services_kb, order_master_service_kb
 
 
 order_master_router = Router()
@@ -40,4 +40,12 @@ async def get_service_info(callback: CallbackQuery):
 
 Щоб замовити цю послугу — натисни кнопку <b>'Замовити'</b>.
 """
-    await callback.message.reply(text=text, parse_mode="HTML")
+    status, master = await BackendClient.get(f'/services/get-master-by-service/{response.get("id")}')
+    username = master.get('username')
+    master_tg_id = master.get('tg_id')
+
+    await callback.message.reply(
+        text=text,
+        parse_mode="HTML",
+        reply_markup=order_master_service_kb(username=username, master_tg_id=master_tg_id)
+    )

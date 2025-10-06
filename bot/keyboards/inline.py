@@ -54,3 +54,12 @@ def master_services_kb(services: list[dict]):
 
     builder.adjust(1)
     return builder.as_markup()
+
+
+def order_master_service_kb(username: str, master_tg_id: int):
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Списатися з майстром', url=f'https://t.me/{username}')
+    builder.button(text='Зробити замовлення', callback_data=f'order_{master_tg_id}')
+
+    builder.adjust(1)
+    return builder.as_markup()
