@@ -3,3 +3,4 @@ from .master_register import masters_register_router
 from .masters_catalog import masters_catalog_router
 from .order_master import order_master_router
 from .create_service import create_service_router
+from .create_order import create_order_router

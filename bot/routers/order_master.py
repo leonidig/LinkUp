@@ -10,7 +10,7 @@ from ..keyboards import master_services_kb, order_master_service_kb
 order_master_router = Router()
 
 
-@order_master_router.callback_query(F.data.startswith('order_'))
+@order_master_router.callback_query(F.data.startswith('make_order_'))
 async def order_master(callback: CallbackQuery, state: FSMContext):
     master_tg_id = callback.data.split('_')[1]
     await state.update_data(master_tg_id = master_tg_id)
