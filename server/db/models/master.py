@@ -19,7 +19,7 @@ class Master(Base):
     good_grades: Mapped[int] = mapped_column(default=0)
 
     tg_id: Mapped[int] = mapped_column(ForeignKey("users.tg_id"), unique=True)
-    user: Mapped['User'] = relationship(back_populates="master")
+    user: Mapped['User'] = relationship(back_populates="master", lazy="selectin")
 
     orders: Mapped[list["Order"]] = relationship(back_populates="master")
     services: Mapped[list["Service"]] = relationship(back_populates="master")
