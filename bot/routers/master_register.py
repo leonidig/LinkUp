@@ -104,3 +104,5 @@ async def enter_schedule(message: Message, state: FSMContext):
                 "Ти зареєстрований ✅",
                 reply_markup=main_kb(exists_user=True, exists_master=True)
             )
+
+        await state.clear()

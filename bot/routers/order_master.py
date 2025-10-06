@@ -12,7 +12,7 @@ order_master_router = Router()
 
 @order_master_router.callback_query(F.data.startswith('make_order_'))
 async def order_master(callback: CallbackQuery, state: FSMContext):
-    master_tg_id = callback.data.split('_')[1]
+    master_tg_id = callback.data.split('_')[2]
     await state.update_data(master_tg_id = master_tg_id)
     status, response = await BackendClient.get(f'/services/by-master/{master_tg_id}')
     if not response:

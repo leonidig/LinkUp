@@ -10,7 +10,7 @@ from ..utils import check_master_exists
 masters_router = APIRouter(prefix='/masters', tags=['Master'])
 
 
-@masters_router.post("/", status_code=status.HTTP_201_CREATED)
+@masters_router.post("/", status_code=status.HTTP_201_CREATED, response_model=MasterResponse)
 async def create_master(
     data: MasterCreateSchema,
     session = Depends(AsyncDB.get_session)
