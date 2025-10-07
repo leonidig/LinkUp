@@ -16,7 +16,8 @@ from .routers import (users_register_router,
                       masters_catalog_router,
                       order_master_router,
                       create_service_router,
-                      create_order_router
+                      create_order_router,
+                      check_new_order_router
                     )
 from .utils import BackendClient, check_user, check_master
 
@@ -47,6 +48,7 @@ async def start() -> None:
         masters_catalog_router,
         order_master_router,
         create_service_router,
-        create_order_router
+        create_order_router,
+        check_new_order_router
     )
     await dp.start_polling(bot)

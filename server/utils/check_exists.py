@@ -1,6 +1,7 @@
 from sqlalchemy import select
+from fastapi import HTTPException, status
 
-from ..db import AsyncDB, User, Master
+from ..db import AsyncDB, User, Master, Service
 
 
 async def check_user_exists(tg_id: int,

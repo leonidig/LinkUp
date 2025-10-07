@@ -1,10 +1,16 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime
 
 from ..db import Order, User, Master, Service, AsyncDB
-from ..shemas import OrderCreateSchema, OrderResponse 
+from ..shemas import OrderCreateSchema, OrderResponse
+from ..utils.check_exists_with_excexption import (
+    check_master_exists_exception,
+    check_service_exsists_exception,
+    check_user_exists_exception
+)
 
 
 orders_router = APIRouter(prefix="/orders", tags=["orders"])
@@ -12,35 +18,14 @@ orders_router = APIRouter(prefix="/orders", tags=["orders"])
 
 @orders_router.post("/", response_model=OrderResponse, status_code=status.HTTP_201_CREATED)
 async def create_order(
-    data: OrderCreateSchema,
-    session: AsyncSession = Depends(AsyncDB.get_session)
-):
-    
-    user = await session.scalar(select(User).where(User.tg_id == data.user_tg_id))
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id {data.user_tg_id} not found"
-        )
+                        data: OrderCreateSchema,
+                        session: AsyncSession = Depends(AsyncDB.get_session)
+                    ):
+    user_exists = await check_user_exists_exception(data.user_tg_id, session)
+    master_exists = await check_master_exists_exception(data.master_tg_id, session)
+    service_exists = await check_service_exsists_exception(data.service_id, session)
 
-    master = await session.scalar(select(Master).where(Master.tg_id == data.master_tg_id))
-    if not master:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Master with id {data.master_tg_id} not found"
-        )
-
-    service = None
-    if data.service_id is not None:
-        service = await session.scalar(select(Service).where(Service.id == data.service_id))
-        if not service:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Service with id {data.service_id} not found"
-            )
-
-    order = Order(
-        user_id=data.user_tg_id,
+    order = Order(user_id=data.user_tg_id,
         master_id=data.master_tg_id,
         service_id=data.service_id,
         description=data.description,

@@ -72,3 +72,11 @@ def suggest_create_service():
 
     builder.adjust(1)
     return builder.as_markup()
+
+
+def view_order_kb(servic_id: int):
+    builder = InlineKeyboardBuilder()
+
+    builder.button(text='Переглянути', callback_data=f'check_new_order_{servic_id}')
+
+    return builder.as_markup()
