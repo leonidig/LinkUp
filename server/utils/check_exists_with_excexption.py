@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from fastapi import HTTPException, status
 
-from ..db import Master, User, Service
+from ..db import Master, User, Service, Order
 
 
 async def check_master_exists_exception(tg_id: int, session):
@@ -40,3 +40,28 @@ async def check_service_exsists_exception(service_id: int,
     else:
         return service
     
+
+async def check_order_exists_exception(order_id: int,
+                                       session
+                                       ):
+    order = await session.get(Order, order_id)
+    if not order:
+        raise HTTPException(
+            detail=f'Замовлення з ID {order_id} не знайдено',
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+    else:
+        return order
+    
+
+async def check_user_exists_exception(tg_id: int,
+                                       session
+                                       ):
+    user = await session.scalar(select(User).where(User.tg_id == tg_id))
+    if not user:
+        raise HTTPException(
+            detail=f'Користувача з телеграм ID {tg_id} не знайдено',
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+    else:
+        return user

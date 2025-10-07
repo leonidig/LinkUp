@@ -80,3 +80,17 @@ def view_order_kb(servic_id: int):
     builder.button(text='Переглянути', callback_data=f'check_new_order_{servic_id}')
 
     return builder.as_markup()
+
+
+def text_user_kb(tg_id: int, phone: str, username: str | None):
+    builder = InlineKeyboardBuilder()
+    if username is None:
+        builder.button(text='Посилланя Для iPhone', url=f'https://t.me/@id{tg_id}')
+        builder.button(text='Посилланя Для Andriod', url=f'tg://openmessage?user_id={tg_id}')
+        builder.button(text='Посилання через Номер', url=f'https://t.me/{phone}')
+    else:
+        builder.button(text='Написати замовнику', url=f'https://t.me/{username}')
+
+    builder.adjust(1)
+
+    return builder.as_markup()

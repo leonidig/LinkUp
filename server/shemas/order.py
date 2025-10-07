@@ -22,7 +22,7 @@ class OrderCreateSchema(BaseModel):
 
 class OrderResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: int
     user_id: int
     master_id: int

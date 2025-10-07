@@ -9,5 +9,6 @@ from .inline import (chose_specialization_kb,
                      master_services_kb,
                      order_master_service_kb,
                      suggest_create_service,
-                     view_order_kb
+                     view_order_kb,
+                     text_user_kb
                     )

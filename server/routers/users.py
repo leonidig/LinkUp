@@ -3,8 +3,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from ..db import AsyncDB, User
-from ..shemas import UserSchema
+from ..shemas import UserSchema, UserResponse
 from ..utils import check_user_exists
+from ..utils.check_exists_with_excexption import check_user_exists_exception
 
 
 users_router = APIRouter(prefix='/users', tags=['Users'])
@@ -40,3 +41,10 @@ async def get_master(tg_id: int, session = Depends(AsyncDB.get_session)):
             status_code=status.HTTP_404_NOT_FOUND
         )
     return user.master
+
+
+@users_router.get('/{tg_id}', response_model=UserResponse)
+async def get_user_info(tg_id: int,
+                        session = Depends(AsyncDB.get_session)
+                    ):
+   return await check_user_exists_exception(tg_id, session)

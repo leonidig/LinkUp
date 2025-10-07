@@ -9,7 +9,8 @@ from ..shemas import OrderCreateSchema, OrderResponse
 from ..utils.check_exists_with_excexption import (
     check_master_exists_exception,
     check_service_exsists_exception,
-    check_user_exists_exception
+    check_user_exists_exception,
+    check_order_exists_exception
 )
 
 
@@ -38,4 +39,12 @@ async def create_order(
     await session.flush()
     await session.refresh(order)
 
+    return order
+
+
+@orders_router.get('/{order_id}', response_model=OrderResponse)
+async def get_order_info(order_id: int,
+                         session = Depends(AsyncDB.get_session) 
+                        ):
+    order = await check_order_exists_exception(order_id, session)
     return order

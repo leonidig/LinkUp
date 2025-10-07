@@ -5,5 +5,7 @@ from .get_services_by_tg_id import get_master_services
 from .check_exists_with_excexption import (
     check_master_exists_exception,
     check_service_exsists_exception,
+    check_user_exists_exception,
+    check_order_exists_exception,
     check_user_exists_exception
 )

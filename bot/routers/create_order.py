@@ -16,6 +16,8 @@ create_order_router = Router()
 async def order_master(callback: CallbackQuery, state: FSMContext):
     master_id, service_id = callback.data.split('_')[2], callback.data.split('_')[3]
 
+    await callback.message.reply('<b>📍Зверни увагу 📍</b>\nЩо в тебе повинен бути відкрито налаштування знаходження твого аккаунту через номер телефону\n\nЦе потрібно щоб майстер зміг з тобою зв`язатися\n\n<b>Зробити це можна так -\nНалаштування -> Приватність і безпека -> Номер телефону -> Хто може знайти мене за номером -> Обрати пункт Усі📍</b>',
+                                parse_mode='HTML')
     await state.update_data(master_tg_id=master_id, service_id=service_id)
     await state.set_state(CreateOrder.scheduled_at)
     await callback.message.reply('Введи час на який заплановано приїзд або зустріч\nФормат - 2026-10-25 17:00\nАбо введі - ні, якшо немає часу')
@@ -68,7 +70,8 @@ async def enter_price_for_order(message: Message, state: FSMContext):
     if status == 201:
         await message.reply('Замовлення створено!')
         from .. import bot
-
+        print('*' * 80)
+        print(int(data.get('master_tg_id')))
         await bot.send_message(
                     int(data.get('master_tg_id')),
                     'В тебе замовлення',

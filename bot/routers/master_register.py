@@ -3,7 +3,7 @@ from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 
 from ..states import MasterCreate
-from ..keyboards import chose_specialization_kb, main_kb, register_kb
+from ..keyboards import chose_specialization_kb, main_kb, register_kb, suggest_create_service
 from ..utils import BackendClient, check_user, check_master
 
 
@@ -101,8 +101,11 @@ async def enter_schedule(message: Message, state: FSMContext):
 
         if status == 201:
             await message.reply(
-                "Ти зареєстрований ✅\nТакож можеш вже додати свої послуги натиснувши на кнопку нижче",
+                "Ти зареєстрований ✅",
                 reply_markup=main_kb(exists_user=True, exists_master=True)
             )
-
+            await message.reply(
+                "Також можеш вже додати свої послуги натиснувши на кнопку нижче",
+                reply_markup=suggest_create_service()
+            )
         await state.clear()
