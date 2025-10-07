@@ -58,10 +58,10 @@ async def set_new_status(order_id: int,
                         ):
 
     allowed_actions = {
-        'cancel': OrderStatus.cancelled,
-        'confirm': OrderStatus.confirmed,
-        'complete': OrderStatus.completed,
-        'pend': OrderStatus.pending
+        'cancelled': OrderStatus.cancelled,
+        'confirmed': OrderStatus.confirmed,
+        'completed': OrderStatus.completed,
+        'pending': OrderStatus.pending
     }
     order = await check_order_exists_exception(order_id, session)
     status_ = order.status

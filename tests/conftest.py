@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from sqlalchemy import delete
 from httpx import AsyncClient, ASGITransport
@@ -84,3 +86,21 @@ async def test_service(client, test_master):
     assert response.status_code == 201
     return response.json()
 
+
+@pytest.fixture
+async def test_order(client, test_master, test_user, test_service):
+    now = datetime.now().isoformat()
+
+    data = {
+        "user_tg_id": test_user.get("tg_id"),
+        "master_tg_id": test_master['user']['tg_id'],
+        "service_id": test_service.get("id"),
+        "description": "Some Description For Creating order Fixture",
+        "price": 1500,
+        "scheduled_at": now,
+        "deadline": now
+    }
+
+    response = await client.post("/orders/", json=data)
+    assert response.status_code == 201
+    return response.json()
