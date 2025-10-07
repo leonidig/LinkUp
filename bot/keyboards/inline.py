@@ -94,3 +94,14 @@ def text_user_kb(tg_id: int, phone: str, username: str | None):
     builder.adjust(1)
 
     return builder.as_markup()
+
+
+def order_choice_action_kb(order_id: int):
+    builder = InlineKeyboardBuilder()
+
+    builder.button(text='Прийняти', callback_data=f'select_action_confirm_{order_id}')
+    builder.button(text='Відхилити', callback_data=f'select_action_cancel_{order_id}')
+
+    builder.adjust(2)
+
+    return builder.as_markup()

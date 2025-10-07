@@ -70,8 +70,7 @@ async def enter_price_for_order(message: Message, state: FSMContext):
     if status == 201:
         await message.reply('Замовлення створено!')
         from .. import bot
-        print('*' * 80)
-        print(int(data.get('master_tg_id')))
+
         await bot.send_message(
                     int(data.get('master_tg_id')),
                     'В тебе замовлення',
@@ -79,3 +78,5 @@ async def enter_price_for_order(message: Message, state: FSMContext):
                 )
     else:
         await message.reply(f"Сталася помилка при створенні замовлення: {response}")
+
+    await state.clear()

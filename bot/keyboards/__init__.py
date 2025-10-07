@@ -10,5 +10,6 @@ from .inline import (chose_specialization_kb,
                      order_master_service_kb,
                      suggest_create_service,
                      view_order_kb,
-                     text_user_kb
+                     text_user_kb,
+                     order_choice_action_kb
                     )

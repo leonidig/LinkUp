@@ -1,10 +1,11 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..db import Order, User, Master, Service, AsyncDB
+from ..db.models.order import OrderStatus
 from ..shemas import OrderCreateSchema, OrderResponse
 from ..utils.check_exists_with_excexption import (
     check_master_exists_exception,
@@ -48,3 +49,39 @@ async def get_order_info(order_id: int,
                         ):
     order = await check_order_exists_exception(order_id, session)
     return order
+
+
+@orders_router.put('/set-status/{order_id}')
+async def set_new_status(order_id: int,
+                         action: str = Query(...),
+                         session: AsyncSession = Depends(AsyncDB.get_session)
+                        ):
+
+    allowed_actions = {
+        'cancel': OrderStatus.cancelled,
+        'confirm': OrderStatus.confirmed,
+        'complete': OrderStatus.completed,
+        'pend': OrderStatus.pending
+    }
+    order = await check_order_exists_exception(order_id, session)
+    status_ = order.status
+
+    if action.lower() not in allowed_actions:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Недопустима дія. Використай: cancel, confirm, complete або pend."
+        )
+    elif action.lower() == status_:
+        raise HTTPException(
+            detail = 'Треба змінити статус корректним значенням',
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT
+        )
+    
+    else:
+        await session.flush()
+        await session.refresh(order)
+
+        return {
+            "message": f"Статус замовлення #{order_id} оновлено на '{order.status.value}'",
+            "new_status": order.status.value
+        }
