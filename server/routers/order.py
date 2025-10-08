@@ -18,6 +18,14 @@ from ..utils.check_exists_with_excexption import (
 orders_router = APIRouter(prefix="/orders", tags=["orders"])
 
 
+allowed_actions = {
+        'cancelled': OrderStatus.cancelled,
+        'confirmed': OrderStatus.confirmed,
+        'completed': OrderStatus.completed,
+        'pending': OrderStatus.pending
+    }
+
+
 @orders_router.post("/", response_model=OrderResponse, status_code=status.HTTP_201_CREATED)
 async def create_order(
                         data: OrderCreateSchema,
@@ -52,36 +60,29 @@ async def get_order_info(order_id: int,
 
 
 @orders_router.put('/set-status/{order_id}')
-async def set_new_status(order_id: int,
-                         action: str = Query(...),
-                         session: AsyncSession = Depends(AsyncDB.get_session)
-                        ):
-
-    allowed_actions = {
-        'cancelled': OrderStatus.cancelled,
-        'confirmed': OrderStatus.confirmed,
-        'completed': OrderStatus.completed,
-        'pending': OrderStatus.pending
-    }
+async def set_new_status(
+    order_id: int,
+    action: str = Query(...),
+    session: AsyncSession = Depends(AsyncDB.get_session)
+):
     order = await check_order_exists_exception(order_id, session)
-    status_ = order.status
+    status_ = order.status.value
 
     if action.lower() not in allowed_actions:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Недопустима дія. Використай: cancel, confirm, complete або pend."
         )
-    elif action.lower() == status_:
+    if action.lower() == status_:
         raise HTTPException(
-            detail = 'Треба змінити статус корректним значенням',
+            detail='Треба змінити статус на інший',
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT
         )
-    
-    else:
-        await session.flush()
-        await session.refresh(order)
+    order.status = allowed_actions[action.lower()]
+    await session.flush()
+    await session.refresh(order)
 
-        return {
-            "message": f"Статус замовлення #{order_id} оновлено на '{order.status.value}'",
-            "new_status": order.status.value
-        }
+    return {
+        "message": f"Статус замовлення #{order_id} оновлено на '{order.status.value}'",
+        "new_status": order.status.value
+    }

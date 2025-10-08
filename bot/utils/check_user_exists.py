@@ -1,9 +1,14 @@
 from .requests_wrapper import BackendClient
 
 
-def check_user(tg_id: int):
-    return BackendClient.get(f'/users/check-exists/{tg_id}')
+async def check_user(tg_id: int) -> bool:
+    status, response = await BackendClient.get(f'/users/check-exists/{tg_id}')
+    print(' USER ' * 10)
+    print(response)
+    return response
 
-
-def check_master(tg_id: int):
-    return BackendClient.get(f'/masters/check-exists/{tg_id}')
+async def check_master(tg_id: int) -> bool:
+    status, response = await BackendClient.get(f'/masters/check-exists/{tg_id}')
+    print(' MASTER ' * 10)
+    print(response)
+    return response

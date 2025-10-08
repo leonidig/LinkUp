@@ -9,10 +9,10 @@ from .user import User
 
 
 class OrderStatus(str, Enum):
-    pending = "очікується"
-    confirmed = "прийнято"
-    completed = "виконано"
-    cancelled = "відхилено"
+    pending = "pending"
+    confirmed = "confirmed"
+    completed = "completed"
+    cancelled = "cancelled"
 
 
 class Order(Base):

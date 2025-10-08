@@ -22,7 +22,7 @@ BACKEND_URL = getenv('BACKEND_URL')
 async def start_register(update: Message | CallbackQuery):
     user_id = update.from_user.id
 
-    status, exists = await check_user(user_id)
+    exists = await check_user(user_id)
 
     if not exists:
         text = 'Для звʼязку і безпеки нам потрібно запросити ваш номер'

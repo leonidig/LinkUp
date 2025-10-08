@@ -11,8 +11,8 @@ def main_kb(exists_user: bool,
         builder.button(text='Зареєструватися')
     if not exists_master and exists_user:
         builder.button(text='Створити Профіль Майстера')
-    if exists_user and exists_master:
-        builder.button(text='Some Btn If All')
+    if exists_master:
+        builder.button(text='Мої Послуги')
     if exists_master or exists_user:
         builder.button(text='Знайти майстра')
 

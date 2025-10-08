@@ -30,17 +30,20 @@ async def test_get_order_info(client, test_order):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("action, expected", [
-    ("pending", "очікується"),
-    ("confirmed", "підтверджено"),
-    ("completed", "завершено"),
-    ("cancelled", "скасовано")
+@pytest.mark.parametrize("action", [
+    'pending',
+    'confirmed',
+    'completed',
+    'cancelled'
 ])
-async def test_change_order_status(client, test_order, action, expected):
+async def test_change_order_status(client, test_order, action):
     response = await client.put(
         f"/orders/set-status/{test_order.get('id')}?action={action}"
     )
-    assert response.status_code == 200
 
-    data = response.json()
-    assert data.get("new_status") == expected
+    if action == "pending":
+        assert response.status_code == 422
+    else:
+        assert response.status_code == 200
+        data = response.json()
+        assert data.get("new_status") == action

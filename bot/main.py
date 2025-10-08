@@ -18,7 +18,8 @@ from .routers import (users_register_router,
                       create_service_router,
                       create_order_router,
                       check_new_order_router,
-                      select_action_order_router
+                      select_action_order_router,
+                      services_actions_router
                     )
 from .utils import BackendClient, check_user, check_master
 
@@ -31,15 +32,22 @@ dp = Dispatcher()
 bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
 
+
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     tg_id = message.from_user.id
-    exists_user, exists_master = check_user(tg_id), check_master(tg_id)
+
+    exists_user = await check_user(tg_id)
+    exists_master = await check_master(tg_id)
+    print('*' * 80)
+    print(exists_user)
+    print(exists_master)
 
     await message.answer(
         f"Hello, {html.bold(message.from_user.full_name)}!",
         reply_markup=main_kb(exists_user, exists_master)
     )
+
 
 
 async def start() -> None:
@@ -51,6 +59,7 @@ async def start() -> None:
         create_service_router,
         create_order_router,
         check_new_order_router,
-        select_action_order_router
+        select_action_order_router,
+        services_actions_router
     )
     await dp.start_polling(bot)
