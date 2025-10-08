@@ -1,6 +1,7 @@
 from .reply import (main_kb,
                     contact_keyboard,
                     name_kb,
+                    actions_with_services_kb
                 )
 
 from .inline import (chose_specialization_kb,
@@ -11,5 +12,6 @@ from .inline import (chose_specialization_kb,
                      suggest_create_service,
                      view_order_kb,
                      text_user_kb,
-                     order_choice_action_kb
+                     order_choice_action_kb,
+                     delete_service_for_master_kb
                     )

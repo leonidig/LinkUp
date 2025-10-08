@@ -13,8 +13,8 @@ masters_register_router = Router(name='Masters Router')
 @masters_register_router.message(F.text == "Створити Профіль Майстера")
 async def create_master_profile(message: Message):
     user_id = message.from_user.id
-    _, exists_user = await check_user(user_id)
-    _, exists_master = await check_master(user_id)
+    exists_user = await check_user(user_id)
+    exists_master = await check_master(user_id)
 
     if not exists_user:
         await message.answer("Для того щоб створити профіль майстра, спершу пройди реєстрацію", reply_markup=register_kb())

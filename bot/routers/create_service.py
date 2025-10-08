@@ -1,5 +1,5 @@
 from aiogram import F, Router
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
 from ..utils import check_master, BackendClient
@@ -14,10 +14,14 @@ create_service_router = Router()
 @create_service_router.message(F.text == 'Створити Послугу')
 @create_service_router.callback_query(F.data == 'create_service_master')
 @master_only
-async def create_service(message: Message,
+async def create_service(target: Message | CallbackQuery,
                          state: FSMContext
                         ):
-    await message.reply('Введи заголовок для послуги: ')
+    if isinstance(target, Message):
+        await target.reply('Введи заголовок для послуги: ')
+    else:
+        await target.message.reply('Введи заголовок для послуги: ')
+
     await state.set_state(ServiceCreate.title)
 
 

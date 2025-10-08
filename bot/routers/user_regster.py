@@ -41,7 +41,7 @@ async def start_register(update: Message | CallbackQuery):
 @users_register_router.message(F.contact)
 async def get_number(message: Message, state: FSMContext):
     contact = message.contact
-    status, exists = await check_user(message.from_user.id)
+    exists = await check_user(message.from_user.id)
     if exists:
         await message.reply('Ти вже зареєстрований\nНе треба відправляти свій контакт')
     elif contact.user_id == message.from_user.id:

@@ -12,7 +12,7 @@ def main_kb(exists_user: bool,
     if not exists_master and exists_user:
         builder.button(text='Створити Профіль Майстера')
     if exists_master:
-        builder.button(text='Мої Послуги')
+        builder.button(text='Дії З Послугами')
     if exists_master or exists_user:
         builder.button(text='Знайти майстра')
 
@@ -36,3 +36,16 @@ def contact_keyboard() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=True
     )
+
+
+def actions_with_services_kb():
+    builder = ReplyKeyboardBuilder()
+
+    builder.button(text='Мої Послуги')
+    builder.button(text='Створити Послугу')
+    builder.button(text='Видалити Послугу')
+    builder.button(text='Повернутися До Меню')
+
+    builder.adjust(1)
+
+    return builder.as_markup()

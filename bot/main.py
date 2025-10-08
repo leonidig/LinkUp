@@ -3,7 +3,7 @@ import logging
 import sys
 from os import getenv
 
-from aiogram import Bot, Dispatcher, html
+from aiogram import Bot, Dispatcher, html, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
@@ -34,14 +34,12 @@ bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
 
 @dp.message(CommandStart())
+@dp.message(F.text == 'Повернутися До Меню')
 async def command_start_handler(message: Message) -> None:
     tg_id = message.from_user.id
 
     exists_user = await check_user(tg_id)
     exists_master = await check_master(tg_id)
-    print('*' * 80)
-    print(exists_user)
-    print(exists_master)
 
     await message.answer(
         f"Hello, {html.bold(message.from_user.full_name)}!",
