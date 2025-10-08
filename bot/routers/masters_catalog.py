@@ -17,7 +17,7 @@ async def fetch_masters(spec: str):
 
 @masters_catalog_router.message(F.text == "Знайти майстра")
 async def masters_catalog(message: Message):
-    status, exists = await check_user(message.from_user.id)
+    exists = await check_user(message.from_user.id)
     if not exists:
         await message.reply(
             "Для того щоб продивитись список майстрів - потрібно пройти регістрацію",
@@ -47,14 +47,19 @@ def build_masters_kb(masters, page, total_pages, spec):
     return builder.as_markup()
 
 
-def build_master_detail_kb(master_id, page, spec):
+def build_master_detail_kb(master_id: int, sender_id: int = None, page: int = None, spec: str = None):
     builder = InlineKeyboardBuilder()
-    builder.row(
-        InlineKeyboardButton(text="Всі послуги цього майстра", callback_data=f"make_order_{master_id}")
-    )
-    builder.row(
-        InlineKeyboardButton(text="⬅️ Назад", callback_data=f"masters_page:{page}:{spec}")
-    )
+    if master_id != sender_id:
+        builder.row(
+            InlineKeyboardButton(text="Всі послуги цього майстра", callback_data=f"make_order_{master_id}")
+        )
+        builder.row(
+            InlineKeyboardButton(text="⬅️ Назад", callback_data=f"masters_page:{page}:{spec}")
+        )
+    elif master_id == sender_id:
+        builder.row(
+            InlineKeyboardButton(text="Всі послуги", callback_data=f"make_order_{master_id}")
+        )
     return builder.as_markup()
 
 

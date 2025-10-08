@@ -46,7 +46,7 @@ async def enter_price(message: Message,
                       ):
     description = message.text
 
-    if len(description) < 20:
+    if len(description) < 55:
         await message.reply('❌ Опис не може бути коротше ніж 20 символів')
     elif len(description) > 1055:
         await message.reply('❌ Опис не може бути довше ніж 1055 символів')

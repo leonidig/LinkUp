@@ -7,6 +7,7 @@ from ..keyboards import (actions_with_services_kb,
                          chose_to_delete_service_for_master_kb,
                          delete_service_kb
                         )
+from . import build_master_detail_kb
 from ..utils.decorators import master_only
 
 
@@ -30,7 +31,7 @@ async def actions_with_services(message: Message):
 @master_only
 async def services_catalog_for_master(message: Message):
     status, response = await BackendClient.get(f'/services/by-master/{message.from_user.id}')
-    await message.reply(f'{response}')
+    await message.reply('Done', reply_markup=build_master_detail_kb(master_id=message.from_user.id))
 
 
 

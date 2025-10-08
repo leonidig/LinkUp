@@ -133,5 +133,5 @@ def delete_service_kb(service_id: int):
     )
 
     builder.adjust(1)
-
+    
     return builder.as_markup()

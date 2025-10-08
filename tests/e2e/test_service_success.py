@@ -59,3 +59,11 @@ async def test_count_master_services(client, test_master):
 async def test_get_master_user_profile_by_service_id(client, test_service):
     response = await client.get(f'/services/get-master-by-service/{test_service.get('id')}')
     assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_delete_service(client,
+                              test_service
+                              ):
+    response = await client.delete(f'/services/{test_service.get('id')}')
+    assert response.status_code == 204

@@ -96,3 +96,10 @@ async def test_get_master_services_count_invalid_id(client):
 
     assert response.status_code == 404
     assert error.get('detail') == 'Майстера з ID 9999999 не знайдено'
+
+
+# delete service 404 ( invalid ID )
+@pytest.mark.asyncio
+async def test_delete_service_invalid_id(client):
+    response = await client.delete('/services/1111111')
+    assert response.status_code == 404

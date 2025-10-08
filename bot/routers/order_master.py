@@ -13,12 +13,16 @@ order_master_router = Router()
 @order_master_router.callback_query(F.data.startswith('make_order_'))
 async def order_master(callback: CallbackQuery, state: FSMContext):
     master_tg_id = callback.data.split('_')[2]
+    author = callback.message.from_user.id
     await state.update_data(master_tg_id = master_tg_id)
     status, response = await BackendClient.get(f'/services/by-master/{master_tg_id}')
     if not response:
         await callback.message.reply('У Майстра Немає Послуг')
     else:
-        await callback.message.reply(f'Ось Список Послуг Цього майстра', reply_markup=master_services_kb(services=response))
+        if master_tg_id != author:
+            await callback.message.reply(f'Ось Список Послуг Цього майстра', reply_markup=master_services_kb(services=response))
+        else:
+            await callback.message.reply(f'Ось ващі послуги', reply_markup=master_services_kb(services=response))
 
 
 @order_master_router.callback_query(F.data.startswith('service_info_'))
@@ -44,6 +48,10 @@ async def get_service_info(callback: CallbackQuery):
     username = master.get('username')
     master_tg_id = master.get('tg_id')
 
+    print('*' * 80)
+    print(master)
+    
+    # TODO if master_id == message.from_user.id 
     await callback.message.reply(
         text=text,
         parse_mode="HTML",
