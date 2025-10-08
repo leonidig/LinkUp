@@ -107,7 +107,7 @@ def order_choice_action_kb(order_id: int):
     return builder.as_markup()
 
 
-def delete_service_for_master_kb(services: list[dict]):
+def chose_to_delete_service_for_master_kb(services: list[dict]):
     builder = InlineKeyboardBuilder()
 
     for service in services:
@@ -117,4 +117,21 @@ def delete_service_for_master_kb(services: list[dict]):
         )
 
     builder.adjust(1)
+    return builder.as_markup()
+
+
+def delete_service_kb(service_id: int):
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text='Так',
+        callback_data=f'final_delete_service_{service_id}'
+    )
+    builder.button(
+        text='Ні',
+        callback_data=f'no_delete_service'
+    )
+
+    builder.adjust(1)
+
     return builder.as_markup()

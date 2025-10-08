@@ -10,6 +10,8 @@ from ..utils import (check_master_exists,
                      get_master_services 
                     )
 
+from ..utils.check_exists_with_excexption import check_service_exsists_exception
+
 
 services_router = APIRouter(prefix='/services', tags=['Service'])
 
@@ -80,3 +82,11 @@ async def get_master_by_service_id(service_id: int, session=Depends(AsyncDB.get_
     await session.refresh(master, attribute_names=["user"])
     
     return master.user
+
+
+@services_router.delete('/{service_id}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_service(service_id: int, session = Depends(AsyncDB.get_session)):
+      service = await check_service_exsists_exception(service_id, session)
+      if service:
+            await session.delete(service)
+            return {'detail': 'Послугу видалено'}
