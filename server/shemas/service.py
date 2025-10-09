@@ -1,4 +1,6 @@
 from datetime import datetime
+from typing import Optional
+
 from pydantic import BaseModel, field_validator, Field
 
 
@@ -25,3 +27,9 @@ class ServiceResponse(BaseModel):
     price: int
     created_at: datetime
     status: str
+
+
+class ServiceUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[int] = None

@@ -49,3 +49,22 @@ def actions_with_services_kb():
     builder.adjust(1)
 
     return builder.as_markup()
+
+
+def chose_field_for_update_kb():
+    builder = ReplyKeyboardBuilder()
+
+    builder.button(
+        text='Назва'
+    )
+    builder.button(
+        text='Опис'
+    )
+    builder.button(
+        text='Ціна'
+    )
+
+    builder.adjust(1)
+
+    return builder.as_markup()
+

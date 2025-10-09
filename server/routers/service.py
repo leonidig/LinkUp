@@ -1,9 +1,13 @@
 from fastapi import APIRouter, status, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import selectinload
 
 from ..db import AsyncDB, Master, Service, User
-from ..shemas import ServiceSchema, ServiceResponse, MasterResponse
+from ..shemas import (ServiceSchema,
+                      ServiceResponse,
+                      MasterResponse,
+                      ServiceUpdate  
+                    )
 from ..utils import (check_master_exists,
                      get_master_by_tg_id,
                      get_service_by_id,
@@ -90,3 +94,29 @@ async def delete_service(service_id: int, session = Depends(AsyncDB.get_session)
       if service:
             await session.delete(service)
             return {'detail': 'Послугу видалено'}
+      
+
+@services_router.put('/{service_id}', response_model=ServiceResponse)
+async def update_service(
+                    service_id: int,
+                    data: ServiceUpdate,
+                    session = Depends(AsyncDB.get_session)
+                ):
+        service = await check_service_exsists_exception(service_id, session)
+
+        update_data = data.model_dump(exclude_unset=True)
+        if not update_data:
+              raise HTTPException(
+                    detail='Не передано жодного поля для оновлення',
+                    status_code=status.HTTP_400_BAD_REQUEST
+              )
+        
+        await session.execute(
+              update(Service).
+              where(Service.id == service_id).
+              values(**update_data)
+        )
+
+        updated = await session.scalar(select(Service).where(Service.id == service_id))
+
+        return updated

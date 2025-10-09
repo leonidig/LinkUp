@@ -1,4 +1,5 @@
 from aiogram import Router, F
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from ..utils import BackendClient
@@ -6,10 +7,12 @@ from ..keyboards import (actions_with_services_kb,
                          suggest_create_service,
                          chose_to_delete_service_for_master_kb,
                          delete_service_kb,
-                         master_services_kb
+                         master_services_kb,
+                         chose_field_for_update_kb
                         )
 from . import build_master_detail_kb
 from ..utils.decorators import master_only
+from ..states import ServiceUpdate
 
 
 services_actions_router = Router()
@@ -64,3 +67,85 @@ async def delete_service(callback: CallbackQuery):
      status = await BackendClient.delete(f'/services/{service_id}')
      if status == 204:
         await callback.message.reply('Послугу видалено!')
+
+
+
+# update
+
+@services_actions_router.callback_query(F.data.startswith('edit_service_'))
+async def start_update(callback: CallbackQuery,
+                       state: FSMContext):
+    service_id = callback.data.split('_')[2]
+    await state.update_data(service_id=service_id)
+    await callback.message.reply('Обери поле яке ти хочеш змінити',
+                                 reply_markup=chose_field_for_update_kb()
+                                )
+    await state.set_state(ServiceUpdate.choosing_field)
+
+
+
+@services_actions_router.message(ServiceUpdate.choosing_field)
+async def choose_field(message: Message,
+                       state: FSMContext
+                       ):
+    text = message.text
+    field_map = {
+        'Назва': 'title',
+        'Опис': 'description',
+        'Ціна': 'price'
+    }
+
+    if text not in field_map:
+        await message.reply('Обери поле з клавіатури')
+    
+    else:
+        await state.update_data(field = field_map.get(text))
+        await message.reply(f'Введи нове значення для поля `{text}`')
+        await state.set_state(ServiceUpdate.new_value)
+
+
+@services_actions_router.message(ServiceUpdate.new_value)
+async def enter_new_value(message: Message, state: FSMContext):
+    data = await state.get_data()
+    field = data.get('field')
+    service_id = int(data.get('service_id'))
+    new_value = message.text.strip()
+
+    is_valid = True
+
+    if field == 'title':
+        if len(new_value) < 20:
+            await message.answer("❗ Назва має бути не коротше 20 символів.")
+            is_valid = False
+        elif len(new_value) > 122:
+            await message.answer("❗ Назва не може перевищувати 122 символів.")
+            is_valid = False
+
+    elif field == 'description':
+        if len(new_value) < 55:
+            await message.answer("❗ Опис має бути не коротше 55 символів.")
+            is_valid = False
+        elif len(new_value) > 1055:
+            await message.answer("❗ Опис не може перевищувати 1055 символів.")
+            is_valid = False
+
+    elif field == 'price':
+        if not new_value.replace('.', '', 1).isdigit():
+            await message.answer("❗ Введи коректну ціну (число).")
+            is_valid = False
+        else:
+            new_value = float(new_value)
+            if new_value < 0:
+                await message.answer("❗ Ціна не може бути від’ємною.")
+                is_valid = False
+
+    if is_valid:
+        payload = {field: new_value}
+        status = await BackendClient.put(f'/services/{service_id}', data=payload)
+
+        if status == 200:
+            await message.answer("✅ Дані успішно оновлено!", reply_markup=actions_with_services_kb())
+        else:
+            await message.answer(f"❌ Помилка при оновленні ({status})")
+
+        await state.clear()

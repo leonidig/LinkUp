@@ -2,6 +2,7 @@ from .reply import (main_kb,
                     contact_keyboard,
                     name_kb,
                     actions_with_services_kb,
+                    chose_field_for_update_kb
                 )
 
 from .inline import (chose_specialization_kb,
