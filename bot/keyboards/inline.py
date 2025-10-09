@@ -135,3 +135,20 @@ def delete_service_kb(service_id: int):
     builder.adjust(1)
     
     return builder.as_markup()
+
+
+def check_master_services_kb(service_id: int):
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text='Видалити',
+        callback_data=f'start_delete_service_master_{service_id}'
+    )
+    builder.button(
+        text='Змінити',
+        callback_data=f'edit_service_{service_id}'
+    )
+
+    builder.adjust(1)
+
+    return builder.as_markup()
