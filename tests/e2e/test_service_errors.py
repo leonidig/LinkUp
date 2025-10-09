@@ -103,3 +103,59 @@ async def test_get_master_services_count_invalid_id(client):
 async def test_delete_service_invalid_id(client):
     response = await client.delete('/services/1111111')
     assert response.status_code == 404
+
+
+# edit service title 404 ( service ID not found )
+@pytest.mark.asyncio
+async def test_edit_service_title_404(client, test_service):
+    service_id = test_service.get('id')
+    new_title = "Updated service title"
+
+    response = await client.put(f"/services/123457", json={"title": new_title})
+    assert response.status_code == 404
+
+
+# edit service 422 ( short title )
+@pytest.mark.asyncio
+async def test_edit_service_short_title(client, test_service):
+    service_id = test_service.get('id')
+    new_title = "Some"
+
+    response = await client.put(f"/services/{test_service.get('id')}", json={"title": new_title})
+    assert response.status_code == 422
+    data = response
+    assert ['String should have at least 20 characters'] == get_error_msgs(data)
+
+
+
+# edit service 422 ( invalid price )
+@pytest.mark.asyncio
+async def test_edit_service_low_price(client, test_service):
+    service_id = test_service.get('id')
+    new_price = -1
+
+    response = await client.put(f"/services/{test_service.get('id')}", json={"price": new_price})
+    assert response.status_code == 422
+    assert ['Input should be greater than 0'] == get_error_msgs(response)
+
+
+# edit service 400 ( with no data )
+@pytest.mark.asyncio
+async def test_edit_service_no_data(client, test_service):
+    service_id = test_service.get('id')
+
+    response = await client.put(f"/services/{test_service.get('id')}", json={})
+    json = response.json()
+    assert response.status_code == 400
+    assert json.get('detail') == 'Не передано жодного поля для оновлення'
+
+
+
+@pytest.mark.asyncio
+async def test_edit_service_short_description(client, test_service):
+    service_id = test_service.get('id')
+    new_description = 'Some '
+
+    response = await client.put(f"/services/{test_service.get('id')}", json={"description": new_description})
+    assert response.status_code == 422
+    assert ['String should have at least 55 characters'] == get_error_msgs(response)

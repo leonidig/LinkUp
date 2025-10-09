@@ -30,6 +30,6 @@ class ServiceResponse(BaseModel):
 
 
 class ServiceUpdate(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
-    price: Optional[int] = None
+    title: Optional[str] = Field(None, min_length=20, max_length=122, description="Заголовок послуги")
+    description: Optional[str] = Field(None, min_length=55, max_length=1055, description="Опис послуги")
+    price: Optional[int] = Field(None, gt=0, lt=9999999, description="Ціна послуги")

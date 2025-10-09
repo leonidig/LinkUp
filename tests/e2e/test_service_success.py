@@ -61,9 +61,56 @@ async def test_get_master_user_profile_by_service_id(client, test_service):
     assert response.status_code == 200
 
 
+# delete service 
 @pytest.mark.asyncio
 async def test_delete_service(client,
                               test_service
                               ):
     response = await client.delete(f'/services/{test_service.get('id')}')
     assert response.status_code == 204
+
+
+
+# edit service title
+@pytest.mark.asyncio
+async def test_edit_service_title(client, test_service):
+    service_id = test_service.get('id')
+    new_title = "Updated service title"
+
+    response = await client.put(f"/services/{service_id}", json={"title": new_title})
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["title"] == new_title
+    assert data["description"] == test_service["description"]
+    assert data["price"] == test_service["price"]
+
+
+# edit service description
+@pytest.mark.asyncio
+async def test_edit_service_description(client, test_service):
+    service_id = test_service.get('id')
+    new_description = "Updated description text for testing test some test text"
+
+    response = await client.put(f"/services/{service_id}", json={"description": new_description})
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["description"] == new_description
+    assert data["title"] == test_service["title"]
+    assert data["price"] == test_service["price"]
+
+
+# edit service price 
+@pytest.mark.asyncio
+async def test_edit_service_price(client, test_service):
+    service_id = test_service.get('id')
+    new_price = 2500
+
+    response = await client.put(f"/services/{service_id}", json={"price": new_price})
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["price"] == new_price
+    assert data["title"] == test_service["title"]
+    assert data["description"] == test_service["description"]

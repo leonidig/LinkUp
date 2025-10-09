@@ -94,7 +94,7 @@ async def delete_service(service_id: int, session = Depends(AsyncDB.get_session)
       if service:
             await session.delete(service)
             return {'detail': 'Послугу видалено'}
-      
+
 
 @services_router.put('/{service_id}', response_model=ServiceResponse)
 async def update_service(
