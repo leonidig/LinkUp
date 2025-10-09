@@ -14,11 +14,16 @@ order_master_router = Router()
 async def order_master(callback: CallbackQuery, state: FSMContext):
     master_tg_id = callback.data.split('_')[2]
     author = callback.message.from_user.id
+    print('*' * 80)
+    print(author)
     await state.update_data(master_tg_id = master_tg_id)
     status, response = await BackendClient.get(f'/services/by-master/{master_tg_id}')
     if not response:
         await callback.message.reply('У Майстра Немає Послуг')
     else:
+        print('&' * 80)
+        print(master_tg_id)
+        print(author)
         if master_tg_id != author:
             await callback.message.reply(f'Ось Список Послуг Цього майстра', reply_markup=master_services_kb(services=response))
         else:
@@ -49,11 +54,13 @@ async def get_service_info(callback: CallbackQuery):
     master_tg_id = master.get('tg_id')
 
     print('*' * 80)
-    print(master)
-    
-    # TODO if master_id == message.from_user.id 
-    await callback.message.reply(
-        text=text,
-        parse_mode="HTML",
-        reply_markup=order_master_service_kb(username=username, master_tg_id=master_tg_id, service_id=response.get('id'))
-    )
+    print(master.get('tg_id'))
+    print(callback.from_user.id)
+    if master.get('tg_id') == callback.from_user.id:
+        await callback.message.reply('Aboba')
+    else:
+        await callback.message.reply(
+            text=text,
+            parse_mode="HTML",
+            reply_markup=order_master_service_kb(username=username, master_tg_id=master_tg_id, service_id=response.get('id'))
+        )
