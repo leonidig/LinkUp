@@ -2,6 +2,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..db import Order, User, Master, Service, AsyncDB
@@ -86,3 +87,17 @@ async def set_new_status(
         "message": f"Статус замовлення #{order_id} оновлено на '{order.status.value}'",
         "new_status": order.status.value
     }
+
+
+
+@orders_router.get("/user/{tg_id}", response_model=list[OrderResponse])
+async def get_user_orders(tg_id: int, session=Depends(AsyncDB.get_session)):
+    user = await check_user_exists_exception(tg_id, session)
+
+    if user:
+        result = await session.execute(
+            select(Order).where(Order.user_id == tg_id)
+        )
+        orders = result.scalars().all()
+
+        return orders
