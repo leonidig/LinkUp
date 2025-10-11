@@ -185,3 +185,18 @@ def choose_orders_by_status_kb():
     builder.adjust(2)
 
     return builder.as_markup()
+
+
+def orders_kb(orders: list[dict]):
+    builder = InlineKeyboardBuilder()
+
+    for order in orders:
+        first_three_words = ' '.join(order.get('description').split(' ')[:3])
+        builder.button(
+            text=first_three_words,
+            callback_data=f'order_info_{order.get("id")}'
+        )
+
+    builder.adjust(1)
+
+    return builder.as_markup()

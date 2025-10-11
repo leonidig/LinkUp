@@ -3,11 +3,12 @@ from aiogram import Router, F
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
-from ..utils import BackendClient
+from ..utils import BackendClient, format_order_response
 from ..keyboards import (master_services_kb,
                          order_master_service_kb,
                          check_master_services_kb,
-                         choose_orders_by_status_kb
+                         choose_orders_by_status_kb,
+                         orders_kb
                         )
 
 
@@ -79,5 +80,13 @@ async def orders_list(message: Message):
 @order_master_router.callback_query(F.data.startswith('selected_status'))
 async def choice_status(callback: CallbackQuery):
     status = callback.data.split('_')[2]
-    status, response = await BackendClient.get(f'/orders/user/{callback.message.from_user.id}', params={'_status': status})
-    await callback.message.reply(f'{status}\n{response}')
+    status, response = await BackendClient.get(f'/orders/user/{callback.from_user.id}', params={'status': status})
+    await callback.message.reply('Ось список замовлень', reply_markup=orders_kb(response))
+
+
+
+@order_master_router.callback_query(F.data.startswith('order_info_'))
+async def get_order_info(callback: CallbackQuery):
+    status, response = await BackendClient.get(f'/orders/{callback.data.split('_')[2]}')
+    order = format_order_response(response)
+    await callback.message.reply(f'{order}')

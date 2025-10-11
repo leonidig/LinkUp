@@ -3,7 +3,7 @@ from datetime import datetime
 def format_order_response(order: dict) -> str:
     status_map = {
         "pending": "Очікується",
-        "accepted": "Прийнято",
+        "confirmed": "Прийнято",
         "completed": "Завершено",
         "cancelled": "Скасовано"
     }
