@@ -16,5 +16,6 @@ from .inline import (chose_specialization_kb,
                      order_choice_action_kb,
                      chose_to_delete_service_for_master_kb,
                      delete_service_kb,
-                     check_master_services_kb
+                     check_master_services_kb,
+                     choose_orders_by_status_kb
                     )

@@ -9,3 +9,5 @@ from .check_exists_with_excexption import (
     check_order_exists_exception,
     check_user_exists_exception
 )
+
+from .get_orders_by_filter import filter_orders

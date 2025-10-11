@@ -6,7 +6,8 @@ from aiogram.fsm.context import FSMContext
 from ..utils import BackendClient
 from ..keyboards import (master_services_kb,
                          order_master_service_kb,
-                         check_master_services_kb 
+                         check_master_services_kb,
+                         choose_orders_by_status_kb
                         )
 
 
@@ -72,5 +73,11 @@ async def get_service_info(callback: CallbackQuery):
 
 @order_master_router.message(F.text == 'Мої Замовлення')
 async def orders_list(message: Message):
-    status, response = await BackendClient.get(f'/orders/user/{message.from_user.id}')
-    await message.reply(f'{status}\n{response}')
+    await message.reply('Обери статус замовлення', reply_markup=choose_orders_by_status_kb())
+
+
+@order_master_router.callback_query(F.data.startswith('selected_status'))
+async def choice_status(callback: CallbackQuery):
+    status = callback.data.split('_')[2]
+    status, response = await BackendClient.get(f'/orders/user/{callback.message.from_user.id}', params={'_status': status})
+    await callback.message.reply(f'{status}\n{response}')

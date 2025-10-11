@@ -152,3 +152,36 @@ def check_master_services_kb(service_id: int):
     builder.adjust(1)
 
     return builder.as_markup()
+
+
+def choose_orders_by_status_kb():
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text='Очікує Подтвердження',
+        callback_data='selected_status_pending'
+    )
+
+    builder.button(
+        text='Прийняті',
+        callback_data='selected_status_confirmed'
+    )
+
+    builder.button(
+        text='Завершені',
+        callback_data='selected_status_completed'
+    )
+
+    builder.button(
+        text='Скасовані',
+        callback_data='selected_status_cancelled'
+    )
+
+    builder.button(
+        text='Всі',
+        callback_data='selected_status_all'
+    )
+
+    builder.adjust(2)
+
+    return builder.as_markup()

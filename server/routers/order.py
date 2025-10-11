@@ -14,7 +14,7 @@ from ..utils.check_exists_with_excexption import (
     check_user_exists_exception,
     check_order_exists_exception
 )
-
+from ..utils import filter_orders
 
 orders_router = APIRouter(prefix="/orders", tags=["orders"])
 
@@ -91,18 +91,25 @@ async def set_new_status(
 
 
 @orders_router.get("/user/{tg_id}", response_model=list[OrderResponse])
-async def get_user_orders(tg_id: int, session=Depends(AsyncDB.get_session)):
+async def get_user_orders(
+    tg_id: int,
+    _status: str = Query(..., alias="status"),
+    session=Depends(AsyncDB.get_session)
+):
     user = await check_user_exists_exception(tg_id, session)
 
-    if user:
-        result = await session.execute(
-            select(Order).where(Order.user_id == tg_id)
+    if _status not in ["confirmed", "pending", "cancelled", "all"]:
+        raise HTTPException(
+            detail="Введи корректний фільтр",
+            status_code=status.HTTP_400_BAD_REQUEST
         )
-        orders = result.scalars().all()
-        if len(orders) == 0:
-            raise HTTPException(
-                detail=f'У користувача з telegram ID {tg_id} немає замовлень',
-                status_code=status.HTTP_404_NOT_FOUND
-            )
 
-        return orders
+    orders = await filter_orders(tg_id, session, _status)
+
+    if not orders:
+        raise HTTPException(
+            detail=f"У користувача з telegram ID {tg_id} немає замовлень по цьому фільтру",
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+
+    return orders
