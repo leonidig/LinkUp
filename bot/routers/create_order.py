@@ -68,12 +68,12 @@ async def enter_price_for_order(message: Message, state: FSMContext):
 
     status, response = await BackendClient.post('/orders/', data=data)
     if status == 201:
-        await message.reply('Замовлення створено!')
+        await message.reply('Замовлення створено!\nМи відправили майстру ваше замовлення')
         from .. import bot
 
         await bot.send_message(
                     int(data.get('master_tg_id')),
-                    'В тебе замовлення',
+                    'В тебе нове замовлення',
                     reply_markup = view_order_kb(response.get('id'))
                 )
     else:
