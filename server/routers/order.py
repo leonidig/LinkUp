@@ -99,5 +99,10 @@ async def get_user_orders(tg_id: int, session=Depends(AsyncDB.get_session)):
             select(Order).where(Order.user_id == tg_id)
         )
         orders = result.scalars().all()
+        if len(orders) == 0:
+            raise HTTPException(
+                detail=f'У користувача з telegram ID {tg_id} немає замовлень',
+                status_code=status.HTTP_404_NOT_FOUND
+            )
 
         return orders

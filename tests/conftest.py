@@ -31,6 +31,20 @@ async def test_user(client):
     return user_data
 
 
+@pytest.fixture
+async def test_user_2(client):
+    user_data = {
+        "tg_id": 11111111,
+        "username": "testuser",
+        "phone": "+380991112233",
+        "name": "Test User"
+    }
+
+    response = await client.post("/users/", json=user_data)
+    assert response.status_code == 201
+    return user_data
+
+
 # fixture for - test_master_info_with_not_exists_telegram_id 
 @pytest.fixture
 async def test_user_whthout_master_profile(client):

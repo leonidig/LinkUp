@@ -32,3 +32,8 @@ async def test_get_master_by_tg_id(client, test_user, test_master):
     response = await client.get(f'/users/master/{test_user.get('tg_id')}')
     assert response.status_code == 200
     assert response.json() is not None
+
+
+@pytest.mark.asyncio
+async def test_something(client, test_user_2):
+    print(test_user_2)

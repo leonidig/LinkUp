@@ -1,6 +1,6 @@
 from datetime import datetime
 from aiogram import Router, F
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
 from ..utils import BackendClient
@@ -68,3 +68,9 @@ async def get_service_info(callback: CallbackQuery):
             parse_mode="HTML",
             reply_markup=order_master_service_kb(username=username, master_tg_id=master_tg_id, service_id=response.get('id'))
         )
+
+
+@order_master_router.message(F.text == 'Мої Замовлення')
+async def orders_list(message: Message):
+    status, response = await BackendClient.get(f'/orders/user/{message.from_user.id}')
+    await message.reply(f'{status}\n{response}')
