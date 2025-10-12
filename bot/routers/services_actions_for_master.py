@@ -63,7 +63,7 @@ async def start_delete_service_for_master(callback: CallbackQuery):
 @services_actions_router.callback_query(F.data.startswith('final_delete_service_'))
 async def delete_service(callback: CallbackQuery):
      service_id = callback.data.split('_')[3]
-     print(service_id)
+
      status = await BackendClient.delete(f'/services/{service_id}')
      if status == 204:
         await callback.message.reply('Послугу видалено!')

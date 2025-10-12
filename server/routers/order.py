@@ -90,26 +90,45 @@ async def set_new_status(
 
 
 
-@orders_router.get("/user/{tg_id}", response_model=list[OrderResponse])
-async def get_user_orders(
-    tg_id: int,
-    _status: str = Query(..., alias="status"),
-    session=Depends(AsyncDB.get_session)
-):
+@orders_router.get("/filtered/{tg_id}", response_model=list[OrderResponse])
+async def get_orders(tg_id: int,
+                     _status: str = Query(..., alias="status"),
+                     session=Depends(AsyncDB.get_session)
+                    ):
     user = await check_user_exists_exception(tg_id, session)
 
-    if _status not in ["confirmed", "pending", "cancelled", "all"]:
+    if _status not in ["confirmed", "completed", "pending", "cancelled", "all"]:
         raise HTTPException(
-            detail="Введи корректний фільтр",
-            status_code=status.HTTP_400_BAD_REQUEST
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Введи корректний фільтр"
         )
 
-    orders = await filter_orders(tg_id, session, _status)
+    filter_field = Order.master_id if user.role == "master" else Order.user_id
+
+    query = select(Order).where(filter_field == user.tg_id)
+    if _status != "all":
+        query = query.where(Order.status == _status)
+
+    orders = (await session.scalars(query)).all()
 
     if not orders:
         raise HTTPException(
-            detail=f"У користувача з telegram ID {tg_id} немає замовлень по цьому фільтру",
-            status_code=status.HTTP_404_NOT_FOUND
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"У {user.role} з telegram ID {tg_id} немає замовлень по цьому фільтру"
         )
 
     return orders
+
+
+
+@orders_router.get('/have/{tg_id}')
+async def check_have_orders(tg_id: int, session: AsyncSession = Depends(AsyncDB.get_session)):
+    user = await check_user_exists_exception(tg_id, session)
+
+    filter_field = Order.master_id if user.role == "master" else Order.user_id
+    result = await session.scalar(
+        select(Order.id).where(filter_field == tg_id).limit(1)
+    )
+    order_exists = result is not None 
+
+    return {"has_orders": order_exists}

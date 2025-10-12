@@ -3,7 +3,8 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 
 def main_kb(exists_user: bool,
-            exists_master: bool = False
+            exists_master: bool = False,
+            exists_order: bool = False
             ):
     builder = ReplyKeyboardBuilder()
 
@@ -15,6 +16,8 @@ def main_kb(exists_user: bool,
         builder.button(text='Дії З Послугами')
     if exists_master or exists_user:
         builder.button(text='Знайти майстра')
+    if exists_order:
+        builder.button(text='Мої Замовлення')
 
     builder.adjust(1)
     return builder.as_markup()

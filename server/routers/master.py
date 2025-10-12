@@ -30,6 +30,7 @@ async def create_master(
         )
     
     master = Master(**data.model_dump(), user=user)
+    user.role = 'master'
     session.add(master)
     await session.flush()
     await session.refresh(master)

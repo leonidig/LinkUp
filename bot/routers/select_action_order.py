@@ -24,8 +24,7 @@ async def select_action(callback: CallbackQuery):
 
     await bot.send_message(
         user_tg_id,
-        f'Майстер змінив статус замовлення\nСтатус замовлення тепер: {status_texts[action]}',
-        reply_markup=view_order_kb(response.get('id'))
+        f'Майстер змінив статус замовлення\nСтатус замовлення тепер: {status_texts[action]}\nПереглянути можеш це натиснувши на кнопку `Мої Замовлення`',
     )
     if status_edit == 200:
         await callback.message.reply('Прийнято!')

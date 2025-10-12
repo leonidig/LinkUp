@@ -34,6 +34,6 @@ async def test_get_master_by_tg_id(client, test_user, test_master):
     assert response.json() is not None
 
 
-@pytest.mark.asyncio
-async def test_something(client, test_user_2):
-    print(test_user_2)
+# @pytest.mark.asyncio
+# async def test_something(client, test_user_2):
+#     print(test_user_2)

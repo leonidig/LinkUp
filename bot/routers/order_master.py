@@ -19,16 +19,13 @@ order_master_router = Router()
 async def order_master(callback: CallbackQuery, state: FSMContext):
     master_tg_id = callback.data.split('_')[2]
     author = callback.message.from_user.id
-    print('*' * 80)
-    print(author)
     await state.update_data(master_tg_id = master_tg_id)
     status, response = await BackendClient.get(f'/services/by-master/{master_tg_id}')
+    
     if not response:
         await callback.message.reply('У Майстра Немає Послуг')
+    
     else:
-        print('&' * 80)
-        print(master_tg_id)
-        print(author)
         if master_tg_id != author:
             await callback.message.reply(f'Ось Список Послуг Цього майстра', reply_markup=master_services_kb(services=response))
         else:
@@ -79,14 +76,22 @@ async def orders_list(message: Message):
 
 @order_master_router.callback_query(F.data.startswith('selected_status'))
 async def choice_status(callback: CallbackQuery):
-    status = callback.data.split('_')[2]
-    status, response = await BackendClient.get(f'/orders/user/{callback.from_user.id}', params={'status': status})
-    await callback.message.reply('Ось список замовлень', reply_markup=orders_kb(response))
+    await callback.answer()
+
+    selected_status = callback.data.split('_')[2]
+    status, response = await BackendClient.get(f'/orders/filtered/{callback.from_user.id}', params={'status': selected_status})
+
+    if status == 404:
+        await callback.message.reply('У вас немає замовлень по цьому фільтру')
+    else:
+        await callback.message.reply('Ось список замовлень', reply_markup=orders_kb(response))
 
 
 
 @order_master_router.callback_query(F.data.startswith('order_info_'))
 async def get_order_info(callback: CallbackQuery):
+    await callback.answer()
+    
     status, response = await BackendClient.get(f'/orders/{callback.data.split('_')[2]}')
     order = format_order_response(response)
     await callback.message.reply(f'{order}')

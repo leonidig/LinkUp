@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 
 from ..states import CreateOrder
 from ..utils import parse_datetime_or_none, BackendClient
-from ..keyboards import view_order_kb
+from ..keyboards import view_order_kb, main_kb
 
 
 create_order_router = Router()
@@ -68,7 +68,10 @@ async def enter_price_for_order(message: Message, state: FSMContext):
 
     status, response = await BackendClient.post('/orders/', data=data)
     if status == 201:
-        await message.reply('Замовлення створено!\nМи відправили майстру ваше замовлення')
+        await message.reply('Замовлення створено!\nМи відправили майстру ваше замовлення', reply_markup=main_kb(
+            exists_user=True,
+            exists_order=True
+        ))
         from .. import bot
 
         await bot.send_message(
