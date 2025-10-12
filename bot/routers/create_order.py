@@ -58,28 +58,44 @@ async def enter_deadline(message: Message, state: FSMContext):
 
 @create_order_router.message(CreateOrder.price)
 async def enter_price_for_order(message: Message, state: FSMContext):
-    await state.update_data(price=int(message.text), user_tg_id=message.from_user.id)
     data = await state.get_data()
-
-    if data.get("scheduled_at"):
-        data["scheduled_at"] = data["scheduled_at"].strftime("%Y-%m-%d %H:%M")
-    if data.get("deadline"):
-        data["deadline"] = data["deadline"].strftime("%Y-%m-%d %H:%M")
-
-    status, response = await BackendClient.post('/orders/', data=data)
-    if status == 201:
-        await message.reply('Замовлення створено!\nМи відправили майстру ваше замовлення', reply_markup=main_kb(
-            exists_user=True,
-            exists_order=True
-        ))
-        from .. import bot
-
-        await bot.send_message(
-                    int(data.get('master_tg_id')),
-                    'В тебе нове замовлення',
-                    reply_markup = view_order_kb(response.get('id'))
-                )
+    service_id = data.get('service_id')
+    status, resp = await BackendClient.get(f'/services/{service_id}')
+    service_price = resp.get('price')
+    if not message.text.isdigit():
+        await message.reply('❌ Введи число')
     else:
-        await message.reply(f"Сталася помилка при створенні замовлення: {response}")
+        price = int(message.text)
 
-    await state.clear()
+        if price < 1:
+            await message.reply('❌ Введи корректну ціну послуги')
+        elif price > 9999999:
+            await message.reply('❌ Введи меньшу ціну ніж 9999999')
+        elif price < service_price:
+            await message.reply('Вказана ціна не може бути меньша ніж ту, яку вказав майстер')
+        else:
+            await state.update_data(price=int(message.text), user_tg_id=message.from_user.id)
+            data = await state.get_data()
+
+            if data.get("scheduled_at"):
+                data["scheduled_at"] = data["scheduled_at"].strftime("%Y-%m-%d %H:%M")
+            if data.get("deadline"):
+                data["deadline"] = data["deadline"].strftime("%Y-%m-%d %H:%M")
+
+            status, response = await BackendClient.post('/orders/', data=data)
+            if status == 201:
+                await message.reply('Замовлення створено!\nМи відправили майстру ваше замовлення', reply_markup=main_kb(
+                    exists_user=True,
+                    exists_order=True
+                ))
+                from .. import bot
+
+                await bot.send_message(
+                            int(data.get('master_tg_id')),
+                            'В тебе нове замовлення',
+                            reply_markup = view_order_kb(response.get('id'))
+                        )
+            else:
+                await message.reply(f"Сталася помилка при створенні замовлення: {response}")
+
+            await state.clear()
