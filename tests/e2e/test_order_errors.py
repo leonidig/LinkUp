@@ -60,3 +60,26 @@ async def test_create_order_long_master_tg_id(client,
     response = await client.post('/orders/', json=data)
     assert response.status_code == 422
     assert get_error_msgs(response) == ['Value error, Некоректний формат — має бути від 6 до 10 цифр']
+
+
+# get filtered orders 400 ( not exists filter = some )
+@pytest.mark.asyncio
+async def test_get_filtered_invalid_param(client, test_user):
+    response = await client.get(
+        f"/orders/filtered/{test_user.get('tg_id')}",
+        params={"status": "some"}
+    )
+
+    assert response.status_code == 400
+    data = response.json()
+    assert data.get('detail') == 'Введи корректний фільтр'
+
+
+# get user have or not orders ( false )
+@pytest.mark.asyncio
+async def test_urser_have_no_orders(client, test_user_without_orders):
+    tg_id = test_user_without_orders.get('tg_id')
+    response = await client.get(f'/orders/have/{tg_id}')
+    data = response.json()
+    assert response.status_code == 200
+    assert data.get('has_orders') == False

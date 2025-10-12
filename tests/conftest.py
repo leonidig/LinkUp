@@ -32,6 +32,22 @@ async def test_user(client):
 
 
 @pytest.fixture
+async def test_user_without_orders(client):
+    user_data = {
+        "tg_id": 88888888,
+        "username": "some_user",
+        "phone": "+193739274123",
+        "name": "Some User"
+    }
+
+    response = await client.post("/users/", json=user_data)
+    assert response.status_code == 201
+    return user_data
+
+
+
+
+@pytest.fixture
 async def test_user_2(client):
     user_data = {
         "tg_id": 11111111,
