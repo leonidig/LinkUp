@@ -47,3 +47,26 @@ async def test_change_order_status(client, test_order, action):
         assert response.status_code == 200
         data = response.json()
         assert data.get("new_status") == action
+
+
+# test gets all user orders
+@pytest.mark.asyncio
+async def test_get_filtered_orders(client, test_user):
+    response = await client.get(
+        f"/orders/filtered/{test_user.get('tg_id')}",
+        params={"status": "all"}
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+
+
+@pytest.mark.asyncio
+async def test_urser_have_orders(client,
+                                 test_user
+                                ):
+    response = await client.get(f'/orders/have/{test_user.get('tg_id')}')
+    data = response.json()
+    assert response.status_code == 200
+    assert data.get('has_orders') == True
