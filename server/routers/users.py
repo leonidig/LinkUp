@@ -11,7 +11,9 @@ from ..utils.check_exists_with_excexption import check_user_exists_exception
 users_router = APIRouter(prefix='/users', tags=['Users'])
 
 
-@users_router.post('/', status_code=status.HTTP_201_CREATED)
+@users_router.post('/',
+                   summary='Create User Profile',
+                   status_code=status.HTTP_201_CREATED)
 async def create_user(
                 data: UserSchema,
                 session = Depends(AsyncDB.get_session)
@@ -21,14 +23,18 @@ async def create_user(
     return 'Created!'
 
 
-@users_router.get("/check-exists/{tg_id}")
+@users_router.get("/check-exists/{tg_id}",
+                  summary='Check User Exists By Telegram ID')
 async def check_exists(tg_id: int,
                        session = Depends(AsyncDB.get_session)
                     ):
     return await check_user_exists(tg_id, session)
 
 
-@users_router.get('/master/{tg_id}')
+@users_router.get('/master/{tg_id}',
+                  summary='Get Master By Telegram ID',
+                  description='Get Master Profile By Telegram ID ( deprecated endpoint for now )'
+                  )
 async def get_master(tg_id: int, session = Depends(AsyncDB.get_session)):
     user = await session.scalar(
         select(User)
@@ -43,7 +49,9 @@ async def get_master(tg_id: int, session = Depends(AsyncDB.get_session)):
     return user.master
 
 
-@users_router.get('/{tg_id}', response_model=UserResponse)
+@users_router.get('/{tg_id}', 
+                  summary='Get User Info',
+                  response_model=UserResponse)
 async def get_user_info(tg_id: int,
                         session = Depends(AsyncDB.get_session)
                     ):

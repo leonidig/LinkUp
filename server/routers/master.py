@@ -84,13 +84,13 @@ async def master_info(master_tg_id: int, session = Depends(AsyncDB.get_session))
     return master
 
 
-@masters_router.delete(
-                "/{tg_id}",
-                summary="Delete Master Profile",
-                description="Delete master profile by Telegram ID",
-                status_code=status.HTTP_204_NO_CONTENT)
-async def delete_master(tg_id: int, session = Depends(AsyncDB.get_session)):
-    master = await check_master_exists(tg_id, session)
-    if master:
-        await session.delete(master)
-        return {'detail': 'Deleted'}
+# @masters_router.delete(
+#                 "/{tg_id}",
+#                 summary="Delete Master Profile",
+#                 description="Delete master profile by Telegram ID",
+#                 status_code=status.HTTP_204_NO_CONTENT)
+# async def delete_master(tg_id: int, session = Depends(AsyncDB.get_session)):
+#     master = await check_master_exists(tg_id, session)
+#     if master:
+#         await session.delete(master)
+#         return {'detail': 'Deleted'}

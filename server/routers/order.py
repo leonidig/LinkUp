@@ -27,7 +27,11 @@ allowed_actions = {
     }
 
 
-@orders_router.post("/", response_model=OrderResponse, status_code=status.HTTP_201_CREATED)
+@orders_router.post("/",
+                    summary='Create Order',
+                    description='Create Order ( Master & User & Service Required )',
+                    status_code=status.HTTP_201_CREATED,
+                    response_model=OrderResponse)
 async def create_order(
                         data: OrderCreateSchema,
                         session: AsyncSession = Depends(AsyncDB.get_session)
@@ -52,7 +56,10 @@ async def create_order(
     return order
 
 
-@orders_router.get('/{order_id}', response_model=OrderResponse)
+@orders_router.get('/{order_id}', 
+                   summary='Order Info',
+                   description='Get Order Info By ID',
+                   response_model=OrderResponse)
 async def get_order_info(order_id: int,
                          session = Depends(AsyncDB.get_session) 
                         ):
@@ -60,7 +67,10 @@ async def get_order_info(order_id: int,
     return order
 
 
-@orders_router.put('/set-status/{order_id}')
+@orders_router.put('/set-status/{order_id}',
+                   summary='Change Status',
+                   description='Change Order Status ( cancelled; confirmed; completed; pending + Order Required )'
+                   )
 async def set_new_status(
     order_id: int,
     action: str = Query(...),
@@ -90,7 +100,10 @@ async def set_new_status(
 
 
 
-@orders_router.get("/filtered/{tg_id}", response_model=list[OrderResponse])
+@orders_router.get("/filtered/{tg_id}",
+                   summary='Filter Orders',
+                   description='Filtering User Orders ( by all + all statuses; Order Required )',
+                   response_model=list[OrderResponse])
 async def get_orders(tg_id: int,
                      _status: str = Query(..., alias="status"),
                      session=Depends(AsyncDB.get_session)
@@ -121,7 +134,10 @@ async def get_orders(tg_id: int,
 
 
 
-@orders_router.get('/have/{tg_id}')
+@orders_router.get('/have/{tg_id}',
+                   summary='Check Have Orders',
+                   description='Check Is User Have Order By telegram ID'
+                   )
 async def check_have_orders(tg_id: int, session: AsyncSession = Depends(AsyncDB.get_session)):
     user = await check_user_exists_exception(tg_id, session)
 
