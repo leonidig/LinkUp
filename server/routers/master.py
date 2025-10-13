@@ -10,7 +10,11 @@ from ..utils import check_master_exists
 masters_router = APIRouter(prefix='/masters', tags=['Master'])
 
 
-@masters_router.post("/", status_code=status.HTTP_201_CREATED, response_model=MasterResponse)
+@masters_router.post("/", 
+                     summary='Create Master Profile',
+                     description='Create Master Profile ( User Profile Required)',
+                     status_code=status.HTTP_201_CREATED,
+                     response_model=MasterResponse)
 async def create_master(
     data: MasterCreateSchema,
     session = Depends(AsyncDB.get_session)
@@ -37,14 +41,20 @@ async def create_master(
     return master
 
 
-@masters_router.get("/check-exists/{tg_id}")
+@masters_router.get("/check-exists/{tg_id}",
+                    summary='Check Master Exists',
+                    description='Check Master Exists By Telegram ID'
+                    )
 async def check_exists(tg_id: int,
                    session = Depends(AsyncDB.get_session)
                     ):
     return await check_master_exists(tg_id, session)
 
 
-@masters_router.get("/by-specialization/{spec}", response_model=list[MasterResponse])
+@masters_router.get("/by-specialization/{spec}",
+                    summary='Get Masters By Spec',
+                    description='Get Masters By Selected Specialization',
+                    response_model=list[MasterResponse])
 async def masters_by_spec(spec: str, session = Depends(AsyncDB.get_session)):
     allowed_specs = [
         "Розробник", "Будівельник", "Дизайнер", "Фотограф", "Водій",
@@ -59,7 +69,10 @@ async def masters_by_spec(spec: str, session = Depends(AsyncDB.get_session)):
 
 
 
-@masters_router.get('/{master_tg_id}', response_model=MasterResponse)
+@masters_router.get('/{master_tg_id}',
+                    summary='Get Master Profile Info',
+                    description='Get Master Profile By Telegram ID',
+                    response_model=MasterResponse)
 async def master_info(master_tg_id: int, session = Depends(AsyncDB.get_session)):
     master = await session.scalar(
         select(Master)
@@ -69,3 +82,15 @@ async def master_info(master_tg_id: int, session = Depends(AsyncDB.get_session))
     if not master:
         raise HTTPException(status_code=404, detail="Майстра не знайдено")
     return master
+
+
+@masters_router.delete(
+                "/{tg_id}",
+                summary="Delete Master Profile",
+                description="Delete master profile by Telegram ID",
+                status_code=status.HTTP_204_NO_CONTENT)
+async def delete_master(tg_id: int, session = Depends(AsyncDB.get_session)):
+    master = await check_master_exists(tg_id, session)
+    if master:
+        await session.delete(master)
+        return {'detail': 'Deleted'}
