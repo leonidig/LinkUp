@@ -11,6 +11,7 @@ from .user import User
 class OrderStatus(str, Enum):
     pending = "pending"
     confirmed = "confirmed"
+    in_progress = "in_progress"
     completed = "completed"
     cancelled = "cancelled"
 

@@ -22,6 +22,7 @@ orders_router = APIRouter(prefix="/orders", tags=["orders"])
 allowed_actions = {
         'cancelled': OrderStatus.cancelled,
         'confirmed': OrderStatus.confirmed,
+        'in_progress': OrderStatus.in_progress,
         'completed': OrderStatus.completed,
         'pending': OrderStatus.pending
     }
@@ -73,31 +74,59 @@ async def get_order_info(order_id: int,
                    )
 async def set_new_status(
     order_id: int,
+    tg_id: int,
     action: str = Query(...),
     session: AsyncSession = Depends(AsyncDB.get_session)
 ):
     order = await check_order_exists_exception(order_id, session)
-    status_ = order.status.value
+    _status = order.status.value
 
     if action.lower() not in allowed_actions:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Недопустима дія. Використай: cancel, confirm, complete або pend."
         )
-    if action.lower() == status_:
+
+    if action.lower() == _status:
         raise HTTPException(
             detail='Треба змінити статус на інший',
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT
         )
-    order.status = allowed_actions[action.lower()]
-    await session.flush()
-    await session.refresh(order)
+    
+    if order.master_id != tg_id and action == 'in_progress':
+        raise HTTPException(
+            detail='Тільки майстер може відмітити що він почав виконання завдання',
+            status_code = status.HTTP_403_FORBIDDEN
+        )
 
-    return {
-        "message": f"Статус замовлення #{order_id} оновлено на '{order.status.value}'",
-        "new_status": order.status.value
-    }
+    if action == "cancelled":
+        if order.user_id != tg_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Лише клієнт може скасувати замовлення."
+            )
+        if _status not in ["pending", "confirmed"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Замовлення вже виконується або завершено, його не можна скасувати."
+            )
 
+    if action == "completed" and order.master_id != tg_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Тільки майстер може позначити завдання як виконане."
+        )
+    
+    else:
+        
+        order.status = allowed_actions[action.lower()]
+        await session.flush()
+        await session.refresh(order)
+
+        return {
+            "message": f"Статус замовлення #{order_id} оновлено на '{order.status.value}'",
+            "new_status": order.status.value
+        }
 
 
 @orders_router.get("/filtered/{tg_id}",
