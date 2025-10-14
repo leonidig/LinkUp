@@ -7,3 +7,4 @@ class MasterCreate(StatesGroup):
     experience_years = State()
     location = State()
     schedule = State()
+    ref_bonus = State()

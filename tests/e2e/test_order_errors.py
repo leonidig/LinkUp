@@ -83,3 +83,38 @@ async def test_urser_have_no_orders(client, test_user_without_orders):
     data = response.json()
     assert response.status_code == 200
     assert data.get('has_orders') == False
+
+
+
+@pytest.mark.asyncio
+async def test_set_status_same_status(client, mocker):
+    mocker.patch("server.routers.order.check_order_exists_exception", return_value=mocker.Mock(status=mocker.Mock(value="pending")))
+    response = await client.put("/orders/set-status/1?action=pending&tg_id=123")
+    assert response.status_code == 422
+
+
+
+@pytest.mark.asyncio
+async def test_set_status_in_progress_by_user(client, mocker):
+    order = mocker.Mock(master_id=999, status=mocker.Mock(value="pending"))
+    mocker.patch("server.routers.order.check_order_exists_exception", return_value=order)
+    response = await client.put("/orders/set-status/1?action=in_progress&tg_id=123")
+    assert response.status_code == 403
+
+
+
+@pytest.mark.asyncio
+async def test_set_status_cancel_not_user(client, mocker):
+    order = mocker.Mock(user_id=999, status=mocker.Mock(value="pending"))
+    mocker.patch("server.routers.order.check_order_exists_exception", return_value=order)
+    response = await client.put("/orders/set-status/1?action=cancelled&tg_id=123")
+    assert response.status_code == 403
+
+
+
+@pytest.mark.asyncio
+async def test_set_status_complete_not_master(client, mocker):
+    order = mocker.Mock(master_id=999, status=mocker.Mock(value="in_progress"))
+    mocker.patch("server.routers.order.check_order_exists_exception", return_value=order)
+    response = await client.put("/orders/set-status/1?action=completed&tg_id=123")
+    assert response.status_code == 403

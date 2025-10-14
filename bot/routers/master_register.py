@@ -81,9 +81,28 @@ async def enter_location(message: Message, state: FSMContext):
         await message.reply("❌ Адреса або райони занадто довгі. Максимум 155 символів.")
     else:
         await state.update_data(location=location)
-        await message.reply("✅ Прийнято! Введи свій розклад:")
-        await state.set_state(MasterCreate.schedule)
+        await message.reply("✅ Прийнято!")
+        await message.reply('Введи, який хочеш реферальний бонус.\nПояснення: користувач 1 створює посилання, за яким переходить користувач 2. Тепер користувач 2 — це реферал користувача 1. Коли користувач 2 матиме з вами виконане замовлення, користувач 1 отримає бонус (у відсотках), який ти зараз введеш.')
+        await state.set_state(MasterCreate.ref_bonus)
 
+
+@masters_register_router.message(MasterCreate.ref_bonus)
+async def enter_ref_bonus(message: Message,
+                          state: FSMContext):
+    if not message.text.isdigit():
+        await message.reply("❌ Введи, будь ласка, число років досвіду (тільки цифри).")
+    else:
+        ref_bonus = int(message.text)
+
+        if ref_bonus <= -1:
+            await message.reply("❌ Мінімальний Бонус = 0%")
+        elif ref_bonus > 100:
+            await message.reply("❌ Максимальний Бонус = 100%")
+        else:
+
+            await state.update_data(ref_bonus=ref_bonus)
+            await message.reply("✅ Прийнято!\nВведи свій розклад")
+            await state.set_state(MasterCreate.location)
 
 
 @masters_register_router.message(MasterCreate.schedule)
