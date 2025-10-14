@@ -135,6 +135,8 @@ async def rate_master(master_tg_id: int,
         total_votes = master.good_grades + master.bad_grades
         master.rating = round(((master.rating * (total_votes - 1)) + rating) / total_votes, 2)
 
+        
+
     await session.flush()
     await session.refresh(master)
 

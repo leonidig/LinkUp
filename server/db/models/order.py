@@ -14,6 +14,7 @@ class OrderStatus(str, Enum):
     in_progress = "in_progress"
     completed = "completed"
     cancelled = "cancelled"
+    # rated = "rated"
 
 
 class Order(Base):
