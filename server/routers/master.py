@@ -1,10 +1,11 @@
-from fastapi import APIRouter, status, Depends, HTTPException
+from fastapi import APIRouter, Query, status, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from ..db import AsyncDB, Master, User
+from ..db import AsyncDB, Master, User, Order
+from ..db.models.order import OrderStatus
 from ..shemas import MasterCreateSchema, MasterResponse
-from ..utils import check_master_exists
+from ..utils import check_master_exists, check_master_exists_exception, check_user_exists_exception
 
 
 masters_router = APIRouter(prefix='/masters', tags=['Master'])
@@ -94,3 +95,52 @@ async def master_info(master_tg_id: int, session = Depends(AsyncDB.get_session))
 #     if master:
 #         await session.delete(master)
 #         return {'detail': 'Deleted'}
+
+
+@masters_router.put('/rate/{master_tg_id}')
+async def rate_master(master_tg_id: int,
+                      user_tg_id: int,
+                      emoji: str,
+                      rating: int | None = Query(None, ge=1, le=10),
+                      session = Depends(AsyncDB.get_session)
+                    ):
+    user = await check_user_exists_exception(user_tg_id, session)
+    master = await check_master_exists_exception(master_tg_id, session)
+    
+    if user and master:
+        orders = await session.scalar(select(Order).where(Order.master_id == master_tg_id,
+                                                        Order.user_id == user_tg_id,
+                                                        Order.status.in_([OrderStatus.completed])
+                                                        ))
+    
+        if not orders:
+            raise HTTPException(
+                detail='У вас немає завершених завдань з цим майстром',
+                status_code=status.HTTP_403_FORBIDDEN
+            )
+    
+    if emoji not in ['👍🏻', '👎🏻']:
+        raise HTTPException(
+            detail='Обери корректне емоджи',
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT
+        )
+
+    if emoji == '👎🏻':
+        master.bad_grades += 1
+
+    elif emoji == '👍🏻':
+        master.good_grades += 1
+
+    if rating:
+        total_votes = master.good_grades + master.bad_grades
+        master.rating = round(((master.rating * (total_votes - 1)) + rating) / total_votes, 2)
+
+    await session.flush()
+    await session.refresh(master)
+
+    return {
+        "message": f"Ви оцінили майстра {emoji}",
+        "rating": master.rating,
+        "good": master.good_grades,
+        "bad": master.bad_grades
+    }
