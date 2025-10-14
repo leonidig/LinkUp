@@ -93,7 +93,8 @@ async def test_master(client, test_user):
         'experience_years': 3,
         'location': 'Some Location',
         'schedule': 'Monday-Friday 09:00-18:00',
-        'tg_id': test_user.get('tg_id')
+        'tg_id': test_user.get('tg_id'),
+        'ref_bonus': 10
     }
 
     response = await client.post('/masters/', json=data)
