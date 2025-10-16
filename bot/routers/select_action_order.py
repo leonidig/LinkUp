@@ -12,7 +12,12 @@ select_action_order_router = Router()
 async def select_action(callback: CallbackQuery):
     action, order_id = callback.data.split('_')[2], callback.data.split('_')[3]
 
-    status_edit = await BackendClient.put(f'/orders/set-status/{order_id}?action={action}', data=None)
+    data = {
+        'tg_id': callback.from_user.id,
+        'action': action
+    }
+    status_edit = await BackendClient.put(f'/orders/set-status/{order_id}?action={action}&tg_id={callback.from_user.id}', data=None)
+
     status, response = await BackendClient.get(f'/orders/{order_id}')
     user_tg_id = response.get('user_id')
     status_texts = {

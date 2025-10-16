@@ -200,3 +200,15 @@ def orders_kb(orders: list[dict]):
     builder.adjust(1)
 
     return builder.as_markup()
+
+
+
+def exit_from_register_master_kb():
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text='◀️ Вийти',
+        callback_data='exit_from_register_master'
+    )
+
+    return builder.as_markup()

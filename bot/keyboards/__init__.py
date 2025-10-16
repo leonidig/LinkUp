@@ -18,5 +18,6 @@ from .inline import (chose_specialization_kb,
                      delete_service_kb,
                      check_master_services_kb,
                      choose_orders_by_status_kb,
-                     orders_kb
+                     orders_kb,
+                     exit_from_register_master_kb
                     )

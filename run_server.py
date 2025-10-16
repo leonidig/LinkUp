@@ -7,7 +7,7 @@ from server.db import AsyncDB
 
 
 async def main():
-    # await AsyncDB.down()
+    await AsyncDB.down()
     await AsyncDB.up()
 
 
