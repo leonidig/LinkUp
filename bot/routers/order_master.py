@@ -8,7 +8,8 @@ from ..keyboards import (master_services_kb,
                          order_master_service_kb,
                          check_master_services_kb,
                          choose_orders_by_status_kb,
-                         orders_kb
+                         orders_kb,
+                         register_kb
                         )
 
 
@@ -71,7 +72,19 @@ async def get_service_info(callback: CallbackQuery):
 
 @order_master_router.message(F.text == 'Мої Замовлення')
 async def orders_list(message: Message):
-    await message.reply('Обери статус замовлення', reply_markup=choose_orders_by_status_kb())
+    tg_id = message.from_user.id
+    status, response = await BackendClient.get(f'/orders/have/{tg_id}')
+
+    if status == 404:
+        await message.reply(
+            "Для того щоб продивитись список замовлень - потрібно пройти регістрацію",
+            reply_markup=register_kb()
+        )
+    elif response.get('has_orders') == False:
+        await message.reply('В тебе немає замовлень')
+    else:
+        await message.reply('Обери статус замовлення', reply_markup=choose_orders_by_status_kb())
+
 
 
 @order_master_router.callback_query(F.data.startswith('selected_status'))
