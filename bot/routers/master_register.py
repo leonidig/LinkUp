@@ -18,27 +18,48 @@ masters_register_router = Router(name='Masters Router')
 
 @masters_register_router.callback_query(F.data == 'exit_from_register_master')
 async def exit_registering(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    data = await state.get_data()
+    for key in ["spec_message_id", "exit_message_id", "master_command_id"]:
+        msg_id = data.get(key)
+        if msg_id:
+            try:
+                await callback.message.bot.delete_message(
+                    chat_id=callback.message.chat.id,
+                    message_id=msg_id
+                )
+            except:
+                pass
     await state.clear()
     await callback.message.reply('Ви повернулися в головне меню', reply_markup=main_kb(exists_user=True))
 
 
 @masters_register_router.message(F.text == "Створити Профіль Майстера")
-async def create_master_profile(message: Message):
+async def create_master_profile(message: Message, state: FSMContext):
     user_id = message.from_user.id
     exists_user = await check_user(user_id)
     exists_master = await check_master(user_id)
-
     if not exists_user:
         await message.answer("Для того щоб створити профіль майстра, спершу пройди реєстрацію", reply_markup=register_kb())
     elif exists_master:
         await message.reply("Ти вже створив профіль майстра")
     else:
-        await message.reply('Якщо ти зайшов сюди випадково - натисни на кнопку `Вийти`', reply_markup=exit_from_register_master_kb())
-        await message.answer("Обери спеціальність", reply_markup=chose_specialization_kb())
+        exit_msg = await message.reply(
+            'Якщо ти зайшов сюди випадково - натисни на кнопку `Вийти`',
+            reply_markup=exit_from_register_master_kb()
+        )
+        spec_msg = await message.answer("Обери спеціальність", reply_markup=chose_specialization_kb())
+        await state.update_data(
+            exit_message_id=exit_msg.message_id,
+            spec_message_id=spec_msg.message_id,
+            master_command_id=message.message_id
+        )
+
 
 
 @masters_register_router.callback_query(F.data.startswith('spec_'))
 async def enter_specialization(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     spec = callback.data.split('spec_')[1]
     await state.update_data(specialization=spec)
     await callback.message.edit_reply_markup(reply_markup=None)
