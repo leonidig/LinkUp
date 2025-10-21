@@ -8,7 +8,8 @@ from ..keyboards import (actions_with_services_kb,
                          chose_to_delete_service_for_master_kb,
                          delete_service_kb,
                          master_services_kb,
-                         chose_field_for_update_kb
+                         chose_field_for_update_kb,
+                         main_kb
                         )
 from . import build_master_detail_kb
 from ..utils.decorators import master_only
@@ -35,7 +36,10 @@ async def actions_with_services(message: Message):
 @master_only
 async def services_catalog_for_master(message: Message):
     status, response = await BackendClient.get(f'/services/by-master/{message.from_user.id}')
-    await message.reply('Ось список твоїх послуг', reply_markup=master_services_kb(response))
+    if len(response) == 0:
+        await message.reply('Список пуст')
+    else:
+        await message.reply('Ось список твоїх послуг', reply_markup=master_services_kb(response))
 
 
 
@@ -50,6 +54,7 @@ async def delete_service_master(message: Message):
 
 @services_actions_router.callback_query(F.data.startswith('start_delete_service_master_'))
 async def start_delete_service_for_master(callback: CallbackQuery):
+    await callback.answer()
     service_id = callback.data.split('_')[4]
     status, service = await BackendClient.get(f'/services/{service_id}')
     if status == 404:
@@ -58,16 +63,37 @@ async def start_delete_service_for_master(callback: CallbackQuery):
         await callback.message.reply(f'Ти впевнений що хочеш видалити послугу - {service.get('title')}', 
                                      reply_markup=delete_service_kb(service.get('id'))
                                     )
+        
+
+@services_actions_router.callback_query(F.data == 'no_delete_service')
+async def no_delete_service(callback: CallbackQuery):
+    await callback.answer()
+    await callback.message.delete()  
+    await callback.message.bot.delete_message(
+            chat_id=callback.message.chat.id,
+            message_id=callback.message.message_id - 1
+        )
+    await callback.message.bot.delete_message(
+            chat_id=callback.message.chat.id,
+            message_id=callback.message.message_id - 2
+        )
+    await callback.message.answer('Видалення відхилено ✔️')
+
 
 
 @services_actions_router.callback_query(F.data.startswith('final_delete_service_'))
 async def delete_service(callback: CallbackQuery):
      service_id = callback.data.split('_')[3]
-
+     await callback.answer()
      status = await BackendClient.delete(f'/services/{service_id}')
      if status == 204:
-        await callback.message.reply('Послугу видалено!')
-
+        _, response = await BackendClient.get(f'/orders/have/{callback.from_user.id}')
+        orders = response.get('has_orders')
+        await callback.message.reply('Послугу видалено!', reply_markup=main_kb(
+            exists_user=True,
+            exists_master=True,
+            exists_order=orders
+            ))
 
 
 # update

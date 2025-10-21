@@ -52,7 +52,7 @@ async def enter_price(message: Message,
         await message.reply('❌ Опис не може бути довше ніж 1055 символів')
     else:
         await state.update_data(description=description)
-        await message.reply('Введіть ціну послуги (в грн): ')
+        await message.reply('Введіть ціну послуги (в грн, мінімальна ціна послуги ): ')
         await state.set_state(ServiceCreate.price)
 
 

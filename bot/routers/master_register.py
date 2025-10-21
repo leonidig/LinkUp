@@ -80,7 +80,7 @@ async def enter_experience_years(message: Message, state: FSMContext):
         await message.reply("❌ Досвід не може бути більше 70 років.")
     else:
         await state.update_data(experience_years=experience)
-        await message.reply("✅ Прийнято! Введи або адресу своєї точки\nАбо райони у які ти можеш приїхати\nАбо наприклад онлайн по всьому світу: ")
+        await message.reply("✅ Прийнято!\nВведи або адресу своєї точки\nАбо райони у які ти можеш приїхати\nАбо наприклад онлайн по всьому світу: ")
         await state.set_state(MasterCreate.location)
 
 
@@ -93,7 +93,7 @@ async def enter_location(message: Message, state: FSMContext):
         await message.reply("❌ Адреса або райони занадто довгі. Максимум 155 символів.")
     else:
         await state.update_data(location=location)
-        await message.reply("✅ Прийнято! Введи реферальний бонус у відсотках:")
+        await message.reply("✅ Прийнято!\nВведи реферальний бонус у відсотках:\n\n<blockquote>Реферальний бонус - коли людина_1 ділиться посиланням з людиною_2.\nІ людина_2 робе в вас замовлення, і воно виконується - людина_1 отримує знижку на наступне замовлення. Ця знижка - це стільки відсотків скільки ви вкажете зараз ( від 0 до 100 )\nЦе створено з ціллю щоб гарні майстри отримували більше замовлень, а люди які діляться вашими послугами - мали бонус =)</blockquote>", parse_mode='HTML')
         await state.set_state(MasterCreate.ref_bonus)
 
 
