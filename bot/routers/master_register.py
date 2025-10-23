@@ -3,7 +3,8 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
 from ..states import MasterCreate
-from ..keyboards import (main_kb,
+from ..keyboards import (
+                         main_kb,
                          chose_specialization_kb,
                          main_kb, register_kb,
                          suggest_create_service,

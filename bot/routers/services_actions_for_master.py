@@ -1,6 +1,7 @@
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
+
 
 from ..utils import BackendClient
 from ..keyboards import (actions_with_services_kb,
@@ -111,21 +112,37 @@ async def start_update(callback: CallbackQuery,
 
 
 @services_actions_router.message(ServiceUpdate.choosing_field)
-async def choose_field(message: Message,
-                       state: FSMContext
-                       ):
+async def choose_field(message: Message, state: FSMContext):
     text = message.text
     field_map = {
         'Назва': 'title',
         'Опис': 'description',
-        'Ціна': 'price'
+        'Ціна': 'price',
+        'Вийти З Меню Зміни Послуги': 'leave'
     }
 
-    if text not in field_map:
+    if text == 'Вийти З Меню Зміни Послуги':
+        await state.clear()
+        await message.answer(
+            "🔄 Повертаюсь у меню вибору послуги...",
+            reply_markup=actions_with_services_kb()
+        )
+
+        status, response = await BackendClient.get(f'/services/by-master/{message.from_user.id}')
+        if not response or len(response) == 0:
+            await message.reply('У тебе немає створених послуг.')
+        else:
+            await message.answer(
+                'Ось список твоїх послуг, обери ту, яку хочеш змінити 👇',
+                reply_markup=master_services_kb(response)
+            )
+        return 1
+
+
+    elif text not in field_map:
         await message.reply('Обери поле з клавіатури')
-    
     else:
-        await state.update_data(field = field_map.get(text))
+        await state.update_data(field=field_map[text])
         await message.reply(f'Введи нове значення для поля `{text}`')
         await state.set_state(ServiceUpdate.new_value)
 
@@ -175,3 +192,27 @@ async def enter_new_value(message: Message, state: FSMContext):
             await message.answer(f"❌ Помилка при оновленні ({status})")
 
         await state.clear()
+
+
+@services_actions_router.message(F.text == 'Вийти З Меню Зміни Послуги')
+async def leave_from_edit_service(message: Message, state: FSMContext):
+    await state.clear()
+    await message.bot.delete_message(
+            chat_id=message.chat.id,
+            message_id=message.message_id - 1
+        )
+    await message.answer(
+        "🔄 Повертаюсь у меню вибору послуги...",
+        reply_markup=ReplyKeyboardRemove()
+    )
+    
+    status, response = await BackendClient.get(f'/services/by-master/{message.from_user.id}')
+    
+    if not response or len(response) == 0:
+        await message.reply('У тебе немає створених послуг.')
+    else:
+        await message.answer(
+            'Ось список твоїх послуг, обери ту, яку хочеш змінити 👇',
+            reply_markup=master_services_kb(response)
+        )
+

@@ -66,6 +66,9 @@ def chose_field_for_update_kb():
     builder.button(
         text='Ціна'
     )
+    builder.button(
+        text='Вийти З Меню Зміни Послуги'
+    )
 
     builder.adjust(1)
 
