@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 
 from ..utils import BackendClient
-from ..keyboards import view_order_kb
+from ..keyboards import view_order_kb, main_kb
 
 
 select_action_order_router = Router()
@@ -19,6 +19,8 @@ async def select_action(callback: CallbackQuery):
     status_edit = await BackendClient.put(f'/orders/set-status/{order_id}?action={action}&tg_id={callback.from_user.id}', data=None)
 
     status, response = await BackendClient.get(f'/orders/{order_id}')
+    print('*' * 80)
+    print(response)
     user_tg_id = response.get('user_id')
     status_texts = {
             "confirmed": "Прийнято",
@@ -32,6 +34,9 @@ async def select_action(callback: CallbackQuery):
         f'Майстер змінив статус замовлення\nСтатус замовлення тепер: {status_texts[action]}\nПереглянути можеш це натиснувши на кнопку `Мої Замовлення`',
     )
     if status_edit == 200:
-        await callback.message.reply('Прийнято!')
+        await callback.message.reply('Прийнято!', reply_markup=main_kb(exists_user=True,
+                                                          exists_master=True,
+                                                          exists_order=True
+                                                          ))
     else:
         await callback.message.reply(f'Сталася помилка: {status_edit}')
