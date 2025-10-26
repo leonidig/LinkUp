@@ -50,7 +50,7 @@ async def get_service_info(callback: CallbackQuery):
 
 🗓 <b>Створено:</b> <blockquote>{date}</blockquote>
 
-Щоб замовити цю послугу — натисни кнопку <b>'Замовити'</b>.
+Щоб замовити цю послугу - натисни кнопку <b>'Замовити'</b>.
 """
     status, master = await BackendClient.get(f'/services/get-master-by-service/{response.get("id")}')
     username = master.get('username')

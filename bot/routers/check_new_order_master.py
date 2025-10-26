@@ -10,6 +10,7 @@ check_new_order_router = Router()
 
 @check_new_order_router.callback_query(F.data.startswith('check_new_order_'))
 async def check_new_order(callback: CallbackQuery):
+    await callback.answer()
     order_id = callback.data.split('_')[3]
     status, response = await BackendClient.get(f'/orders/{order_id}')
     status, user = await BackendClient.get(f'/users/{response.get('user_id')}')

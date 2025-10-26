@@ -14,6 +14,7 @@ create_order_router = Router()
 
 @create_order_router.callback_query(F.data.startswith('ordering_master_'))
 async def order_master(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     master_id, service_id = callback.data.split('_')[2], callback.data.split('_')[3]
 
     await callback.message.reply('<b>📍Зверни увагу 📍</b>\nЩо в тебе повинен бути відкрито налаштування знаходження твого аккаунту через номер телефону\n\nЦе потрібно щоб майстер зміг з тобою зв`язатися\n\n<b>Зробити це можна так -\nНалаштування -> Приватність і безпека -> Номер телефону -> Хто може знайти мене за номером -> Обрати пункт Усі📍</b>',

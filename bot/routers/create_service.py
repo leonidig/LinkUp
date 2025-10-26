@@ -20,6 +20,7 @@ async def create_service(target: Message | CallbackQuery,
     if isinstance(target, Message):
         await target.reply('Введи заголовок для послуги: ')
     else:
+        await target.answer()
         await target.message.reply('Введи заголовок для послуги: ')
 
     await state.set_state(ServiceCreate.title)
