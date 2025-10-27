@@ -16,7 +16,7 @@ class MasterCreateSchema(BaseModel):
         description="Розклад роботи (наприклад, Пн-Пт 9:00-18:00)",
     ) 
     tg_id: int = Field(..., description="ID користувача, який є майстром")
-    ref_bonus: int = Field(..., gt=0, lt=101)
+    ref_bonus: int = Field(..., gt=-1, lt=101)
 
     @field_validator("tg_id")
     @classmethod

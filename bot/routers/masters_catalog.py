@@ -47,20 +47,22 @@ def build_masters_kb(masters, page, total_pages, spec):
     return builder.as_markup()
 
 
-def build_master_detail_kb(master_id: int, sender_id: int = None, page: int = None, spec: str = None):
+def build_master_detail_kb(master_id: int, page: int = None, spec: str = None, sender_id: int = None):
     builder = InlineKeyboardBuilder()
     if master_id != sender_id:
         builder.row(
             InlineKeyboardButton(text="Всі послуги цього майстра", callback_data=f"make_order_{master_id}")
         )
-        builder.row(
-            InlineKeyboardButton(text="⬅️ Назад", callback_data=f"masters_page:{page}:{spec}")
-        )
-    elif master_id == sender_id:
+        if page is not None and spec is not None:
+            builder.row(
+                InlineKeyboardButton(text="⬅️ Назад", callback_data=f"masters_page:{page}:{spec}")
+            )
+    else:
         builder.row(
             InlineKeyboardButton(text="Всі послуги", callback_data=f"make_order_{master_id}")
         )
     return builder.as_markup()
+
 
 
 @masters_catalog_router.callback_query(F.data.startswith("select_spec_"))
@@ -134,5 +136,5 @@ async def show_master_detail(callback: CallbackQuery):
 </pre>
 Всі його послуги будуть доступні за кнопкою 'Замовити'
 """
-    kb = build_master_detail_kb(master_id, page, spec)
+    kb = build_master_detail_kb(master_id=master_id, page=page, spec=spec)
     await callback.message.edit_text(text, reply_markup=kb, parse_mode="HTML")
