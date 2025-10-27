@@ -5,10 +5,25 @@ from aiogram.fsm.context import FSMContext
 from ..utils import check_master, BackendClient
 from ..utils.decorators import master_only
 from ..states import ServiceCreate
+from ..keyboards import exit_fron_servce_creating_kb
 
 
 create_service_router = Router()
 
+
+
+@create_service_router.callback_query(F.data == 'exit_from_creating_service')
+async def exit_from_creating_service(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    await callback.message.delete()
+
+    await callback.message.bot.delete_message(
+            chat_id=callback.message.chat.id,
+            message_id=callback.message.message_id - 1
+        )
+
+    await state.clear()
+    await callback.message.answer("Створення послуги скасовано ✅")
 
 
 @create_service_router.message(F.text == 'Створити Послугу')
@@ -18,10 +33,11 @@ async def create_service(target: Message | CallbackQuery,
                          state: FSMContext
                         ):
     if isinstance(target, Message):
-        await target.reply('Введи заголовок для послуги: ')
+        await target.reply('Введи заголовок для послуги: ', reply_markup=exit_fron_servce_creating_kb())
     else:
         await target.answer()
-        await target.message.reply('Введи заголовок для послуги: ')
+        await target.message.reply('Введи заголовок для послуги: ', reply_markup=exit_fron_servce_creating_kb())
+
 
     await state.set_state(ServiceCreate.title)
 

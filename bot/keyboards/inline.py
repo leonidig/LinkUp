@@ -212,3 +212,14 @@ def exit_from_register_master_kb():
     )
 
     return builder.as_markup()
+
+
+def exit_fron_servce_creating_kb():
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text='Вийти Зі Свторення Послуги',
+        callback_data='exit_from_creating_service'
+    )
+
+    return builder.as_markup()
