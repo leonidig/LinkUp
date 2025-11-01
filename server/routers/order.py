@@ -1,0 +1,179 @@
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from ..db import Order, User, Master, Service, AsyncDB
+from ..db.models.order import OrderStatus
+from ..shemas import OrderCreateSchema, OrderResponse
+from ..utils.check_exists_with_excexption import (
+    check_master_exists_exception,
+    check_service_exsists_exception,
+    check_user_exists_exception,
+    check_order_exists_exception
+)
+from ..utils import filter_orders
+
+orders_router = APIRouter(prefix="/orders", tags=["orders"])
+
+
+allowed_actions = {
+        'cancelled': OrderStatus.cancelled,
+        'confirmed': OrderStatus.confirmed,
+        'in_progress': OrderStatus.in_progress,
+        'completed': OrderStatus.completed,
+        'pending': OrderStatus.pending
+    }
+
+
+@orders_router.post("/",
+                    summary='Create Order',
+                    description='Create Order ( Master & User & Service Required )',
+                    status_code=status.HTTP_201_CREATED,
+                    response_model=OrderResponse)
+async def create_order(
+                        data: OrderCreateSchema,
+                        session: AsyncSession = Depends(AsyncDB.get_session)
+                    ):
+    user_exists = await check_user_exists_exception(data.user_tg_id, session)
+    master_exists = await check_master_exists_exception(data.master_tg_id, session)
+    service_exists = await check_service_exsists_exception(data.service_id, session)
+
+    order = Order(user_id=data.user_tg_id,
+        master_id=data.master_tg_id,
+        service_id=data.service_id,
+        description=data.description,
+        price=data.price,
+        scheduled_at=data.scheduled_at,
+        deadline=data.deadline
+    )
+
+    session.add(order)
+    await session.flush()
+    await session.refresh(order)
+
+    return order
+
+
+@orders_router.get('/{order_id}', 
+                   summary='Order Info',
+                   description='Get Order Info By ID',
+                   response_model=OrderResponse)
+async def get_order_info(order_id: int,
+                         session = Depends(AsyncDB.get_session) 
+                        ):
+    order = await check_order_exists_exception(order_id, session)
+    return order
+
+
+@orders_router.put('/set-status/{order_id}',
+                   summary='Change Status',
+                   description='Change Order Status ( cancelled; confirmed; completed; pending + Order Required )'
+                   )
+async def set_new_status(
+    order_id: int,
+    tg_id: int,
+    action: str = Query(...),
+    session: AsyncSession = Depends(AsyncDB.get_session)
+):
+    order = await check_order_exists_exception(order_id, session)
+    _status = order.status.value
+
+    if action.lower() not in allowed_actions:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Недопустима дія. Використай: cancel, confirm, complete або pend."
+        )
+
+    if action.lower() == _status:
+        raise HTTPException(
+            detail='Треба змінити статус на інший',
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT
+        )
+    
+    if order.master_id != tg_id and action == 'in_progress':
+        raise HTTPException(
+            detail='Тільки майстер може відмітити що він почав виконання завдання',
+            status_code = status.HTTP_403_FORBIDDEN
+        )
+
+    if action == "cancelled":
+        if order.user_id != tg_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Лише клієнт може скасувати замовлення."
+            )
+        if _status not in ["pending", "confirmed"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Замовлення вже виконується або завершено, його не можна скасувати."
+            )
+
+    if action == "completed" and order.master_id != tg_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Тільки майстер може позначити завдання як виконане."
+        )
+    
+    else:
+        
+        order.status = allowed_actions[action.lower()]
+        await session.flush()
+        await session.refresh(order)
+
+        return {
+            "message": f"Статус замовлення #{order_id} оновлено на '{order.status.value}'",
+            "new_status": order.status.value
+        }
+
+
+@orders_router.get("/filtered/{tg_id}",
+                   summary='Filter Orders',
+                   description='Filtering User Orders ( by all + all statuses; Order Required )',
+                   response_model=list[OrderResponse])
+async def get_orders(tg_id: int,
+                     _status: str = Query(..., alias="status"),
+                     session=Depends(AsyncDB.get_session)
+                    ):
+    user = await check_user_exists_exception(tg_id, session)
+
+    if _status not in ["confirmed", "completed", "pending", "cancelled", "all"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Введи корректний фільтр"
+        )
+
+    filter_field = Order.master_id if user.role == "master" else Order.user_id
+
+    query = select(Order).where(filter_field == user.tg_id)
+    if _status != "all":
+        query = query.where(Order.status == _status)
+
+    orders = (await session.scalars(query)).all()
+
+    if not orders:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"У {user.role} з telegram ID {tg_id} немає замовлень по цьому фільтру"
+        )
+
+    return orders
+
+
+
+@orders_router.get('/have/{tg_id}',
+                   summary='Check Have Orders',
+                   description='Check Is User Have Order By telegram ID'
+                   )
+async def check_have_orders(tg_id: int, session: AsyncSession = Depends(AsyncDB.get_session)):
+    user = await check_user_exists_exception(tg_id, session)
+
+    filter_field = Order.master_id if user.role == "master" else Order.user_id
+    result = await session.scalar(
+        select(Order.id).where(filter_field == tg_id).limit(1)
+    )
+    order_exists = result is not None 
+
+    return {"has_orders": order_exists}

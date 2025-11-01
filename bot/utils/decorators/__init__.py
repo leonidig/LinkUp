@@ -1,0 +1,1 @@
+from .master_required import master_only

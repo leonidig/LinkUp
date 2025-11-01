@@ -1,0 +1,58 @@
+from fastapi import APIRouter, status, Depends, HTTPException
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+
+from ..db import AsyncDB, User
+from ..shemas import UserSchema, UserResponse
+from ..utils import check_user_exists
+from ..utils.check_exists_with_excexption import check_user_exists_exception
+
+
+users_router = APIRouter(prefix='/users', tags=['Users'])
+
+
+@users_router.post('/',
+                   summary='Create User Profile',
+                   status_code=status.HTTP_201_CREATED)
+async def create_user(
+                data: UserSchema,
+                session = Depends(AsyncDB.get_session)
+            ):
+    user = User(**data.model_dump())
+    session.add(user)
+    return 'Created!'
+
+
+@users_router.get("/check-exists/{tg_id}",
+                  summary='Check User Exists By Telegram ID')
+async def check_exists(tg_id: int,
+                       session = Depends(AsyncDB.get_session)
+                    ):
+    return await check_user_exists(tg_id, session)
+
+
+@users_router.get('/master/{tg_id}',
+                  summary='Get Master By Telegram ID',
+                  description='Get Master Profile By Telegram ID ( deprecated endpoint for now )'
+                  )
+async def get_master(tg_id: int, session = Depends(AsyncDB.get_session)):
+    user = await session.scalar(
+        select(User)
+        .options(selectinload(User.master))
+        .where(User.tg_id == tg_id)
+    )
+    if not user:
+        raise HTTPException(
+            detail=f'Юзера з ID {tg_id} не знайдено',
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+    return user.master
+
+
+@users_router.get('/{tg_id}', 
+                  summary='Get User Info',
+                  response_model=UserResponse)
+async def get_user_info(tg_id: int,
+                        session = Depends(AsyncDB.get_session)
+                    ):
+   return await check_user_exists_exception(tg_id, session)
